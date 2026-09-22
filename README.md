@@ -2,6 +2,8 @@
 
 > Production-grade, full-stack farm-to-table e-commerce platform specializing in 100% certified organic Indian fruits and vegetables.
 
+🌐 **Live Demo URL**: [https://freshcart-3b848.web.app](https://freshcart-3b848.web.app)
+
 ---
 
 ## 📸 Screenshots & UI Preview
@@ -24,19 +26,29 @@
 ---
 
 ## 📋 Table of Contents
-1. [📸 Screenshots & UI Preview](#-screenshots--ui-preview)
-2. [✨ Key Features & User Flow](#-key-features--user-flow)
-3. [🏛️ Architectural Overview](#-architectural-overview)
-4. [🎨 Design System & Botanical Pastel Theme](#-design-system--botanical-pastel-theme)
-5. [🛠️ Technology Stack](#-technology-stack)
-6. [📂 Project Structure](#-project-structure)
-7. [⚡ Prerequisites](#-prerequisites)
-8. [🚀 Backend Setup (Django & PostgreSQL / Supabase)](#-backend-setup-django--postgresql--supabase)
-9. [🅰️ Frontend Setup (Angular 18+ Standalone)](#-frontend-setup-angular-18-standalone)
-10. [🔐 Authentication & Member Flow](#-authentication--member-flow)
-11. [📊 Database Schema & Seed Data (93 Items)](#-database-schema--seed-data-93-items)
-12. [🌐 REST API Endpoints](#-rest-api-endpoints)
-13. [💡 Angular Signals & Cart Architecture](#-angular-signals--cart-architecture)
+1. [🌐 Live Deployment & Hosting](#-live-deployment--hosting)
+2. [📸 Screenshots & UI Preview](#-screenshots--ui-preview)
+3. [✨ Key Features & User Flow](#-key-features--user-flow)
+4. [🏛️ Architectural Overview](#-architectural-overview)
+5. [🎨 Design System & Botanical Pastel Theme](#-design-system--botanical-pastel-theme)
+6. [🛠️ Technology Stack](#-technology-stack)
+7. [📂 Project Structure](#-project-structure)
+8. [⚡ Prerequisites](#-prerequisites)
+9. [🚀 Backend Setup (Django & PostgreSQL / Supabase)](#-backend-setup-django--postgresql--supabase)
+10. [🅰️ Frontend Setup (Angular 18+ Standalone)](#-frontend-setup-angular-18-standalone)
+11. [🔐 Authentication & Member Flow](#-authentication--member-flow)
+12. [📊 Database Schema & Seed Data (93 Items)](#-database-schema--seed-data-93-items)
+13. [🌐 REST API Endpoints](#-rest-api-endpoints)
+14. [💡 Angular Signals & Cart Architecture](#-angular-signals--cart-architecture)
+
+---
+
+## 🌐 Live Deployment & Hosting
+
+The production frontend is deployed on Firebase Hosting:
+
+- **Primary Live URL**: [https://freshcart-3b848.web.app](https://freshcart-3b848.web.app)
+- **Alternate Firebase Domain**: [https://freshcart-3b848.firebaseapp.com](https://freshcart-3b848.firebaseapp.com)
 
 ---
 
