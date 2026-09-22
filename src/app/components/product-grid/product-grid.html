@@ -1,0 +1,66 @@
+<section class="produce-grid-section" id="produce-section">
+  <div class="container">
+    
+    <!-- Category Filter Bar -->
+    <app-category-filter></app-category-filter>
+
+    <!-- Grid Header with Section Title, Count & Sort -->
+    <div class="grid-header">
+      <div class="header-left">
+        <h2 class="section-title">{{ getSectionTitle() }}</h2>
+        <span class="items-count-pill">{{ products().length }} Items Available</span>
+      </div>
+
+      <div class="header-right">
+        <label for="sort-select" class="sort-label">Sort by:</label>
+        <div class="sort-select-wrapper">
+          <select id="sort-select" class="sort-select" [value]="sortOption()" (change)="onSortChange($event)">
+            <option value="featured">Featured & Curated</option>
+            <option value="price-asc">Price: Low to High (₹)</option>
+            <option value="price-desc">Price: High to Low (₹)</option>
+            <option value="rating">Highest Rated ★</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    @if (isLoading()) {
+      <div class="loading-skeletons">
+        @for (item of [1, 2, 3, 4, 5, 6, 7, 8]; track item) {
+          <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line short"></div>
+              <div class="skeleton-line title"></div>
+              <div class="skeleton-line full"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (products().length > 0) {
+      <div class="product-cards-grid">
+        @for (prod of products(); track prod.id) {
+          <app-product-card [product]="prod"></app-product-card>
+        }
+      </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="empty-state-box animate-scale-up">
+        <div class="empty-icon">🥬</div>
+        <h3 class="empty-title">No produce matches your search</h3>
+        <p class="empty-desc">
+          We couldn't find any items matching "{{ cartService.searchQuery() }}". Try searching for 'apples', 'spinach', or clear your search filter.
+        </p>
+        <button 
+          type="button" 
+          class="btn-primary" 
+          (click)="cartService.searchQuery.set(''); cartService.activeCategory.set('all')"
+        >
+          View All Fresh Produce
+        </button>
+      </div>
+    }
+
+  </div>
+</section>

@@ -1,0 +1,227 @@
+<div class="freshcart-app">
+  
+  @if (currentView() === 'admin') {
+    <!-- Farm Manager Admin Portal -->
+    <app-admin-portal (closeAdmin)="openStoreView()"></app-admin-portal>
+  } @else {
+    <!-- Customer Storefront View -->
+    <!-- Navigation Header -->
+    <app-navbar></app-navbar>
+
+    <!-- Main Content Layout -->
+    <main class="main-content">
+      
+      <!-- Hero Banner with Farm-to-Table Guarantees -->
+      <app-hero-banner></app-hero-banner>
+
+    @if (authService.isLoggedIn()) {
+      <!-- Product Grid with Category Pills, Sorting & Search -->
+      <app-product-grid></app-product-grid>
+    } @else {
+      <!-- Locked Catalog Teaser Section -->
+      <section id="produce-section" class="locked-catalog-section">
+        <div class="container">
+          <div class="locked-card">
+            <div class="locked-content">
+              <div class="locked-icon-badge">
+                <span class="locked-icon">🔒</span>
+                <span class="locked-label">Private Farm Gate</span>
+              </div>
+              <h2 class="locked-title">Dawn Harvest Catalog is Reserved for Members</h2>
+              <p class="locked-desc">
+                To guarantee early morning harvest freshness and fair farm-gate pricing directly from Himachal, Maharashtra, and Karnataka orchards, our produce catalog is accessible to verified members.
+              </p>
+              
+              <div class="locked-benefits">
+                <div class="benefit-item">
+                  <span class="benefit-check">✓</span>
+                  <span>93 Farm-fresh organic fruits, greens & kitchen essentials</span>
+                </div>
+                <div class="benefit-item">
+                  <span class="benefit-check">✓</span>
+                  <span>Live Indian Rupee (₹ INR) fair wholesale pricing</span>
+                </div>
+                <div class="benefit-item">
+                  <span class="benefit-check">✓</span>
+                  <span>Free 2-hour express delivery across Metro hubs on orders ₹299+</span>
+                </div>
+              </div>
+
+              <div class="locked-actions">
+                <button class="btn-unlock" (click)="authService.openAuthModal()">
+                  <span class="unlock-icon">🌿</span>
+                  <span>Sign In or Register to Unlock</span>
+                  <span class="unlock-arrow">→</span>
+                </button>
+                <span class="unlock-note">Takes 10 seconds to sign in or register</span>
+              </div>
+            </div>
+
+            <!-- Blurred Background Teaser Preview -->
+            <div class="locked-preview-backdrop" aria-hidden="true">
+              <div class="preview-grid-mock">
+                <div class="mock-card">
+                  <div class="mock-img">🍎</div>
+                  <div class="mock-title">Shimla Royal Delicious Apple</div>
+                  <div class="mock-price">₹180 / 1 kg</div>
+                </div>
+                <div class="mock-card">
+                  <div class="mock-img">🥬</div>
+                  <div class="mock-title">Ooty Baby Spinach (Palak)</div>
+                  <div class="mock-price">₹45 / 250g</div>
+                </div>
+                <div class="mock-card">
+                  <div class="mock-img">🥕</div>
+                  <div class="mock-title">Organic Nagpur Carrots</div>
+                  <div class="mock-price">₹60 / 500g</div>
+                </div>
+                <div class="mock-card">
+                  <div class="mock-img">🥭</div>
+                  <div class="mock-title">Ratnagiri Alphonso Mango</div>
+                  <div class="mock-price">₹450 / 6 pcs</div>
+                </div>
+              </div>
+              <div class="locked-frost-overlay">
+                <div class="frost-center">
+                  <div class="frost-lock-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="28" height="28">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </div>
+                  <span class="frost-text">93 Harvest Items Locked</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Trust & Organic Sourcing Story Section (Hidden when user logs in) -->
+      <section class="trust-story-section">
+        <div class="container">
+          <div class="story-card">
+            <div class="story-content">
+              <span class="badge badge-sage">The FreshCart Farm Story</span>
+              <h2 class="story-title">From Native Indian Soil Directly To Your Doorstep</h2>
+              <p class="story-text">
+                We partner directly with certified organic farmer collectives across Himachal, Maharashtra, Karnataka, and Kerala. Every apple, carrot, and sprig of palak is harvested during early dawn hours, cleaned with ozonated pure water, temperature-locked, and delivered directly to your doorstep in 100% compostable paper bags.
+              </p>
+              <div class="story-certifications">
+                <div class="cert-item">
+                  <span class="cert-icon">📜</span>
+                  <div>
+                    <strong>NPOP Certified</strong>
+                    <span>Govt. of India Organic Standards</span>
+                  </div>
+                </div>
+                <div class="cert-item">
+                  <span class="cert-icon">🧪</span>
+                  <div>
+                    <strong>Zero Chemical Waxes</strong>
+                    <span>Naturally ripened without calcium carbide</span>
+                  </div>
+                </div>
+                <div class="cert-item">
+                  <span class="cert-icon">♻️</span>
+                  <div>
+                    <strong>Zero Single-Use Plastic</strong>
+                    <span>Cornstarch and kraft paper packing</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="story-visual">
+              <img 
+                src="https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=800&q=80" 
+                alt="Indian organic farmer inspecting fresh harvest" 
+                class="story-img"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-container">
+      <div class="footer-grid">
+        
+        <div class="footer-col brand-col">
+          <div class="footer-brand">
+            <span class="footer-brand-leaf">🌿</span>
+            <span class="footer-brand-title">FreshCart</span>
+          </div>
+          <p class="footer-about">
+            India's most trusted regenerative farm-to-table organic delivery service. Chemical-free produce, direct farmer livelihoods, and hyper-fresh dawn harvests.
+          </p>
+          <div class="footer-currency-note">
+            <span>🇮🇳 All prices in Indian Rupee (₹ INR) inclusive of GST.</span>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Produce Categories</h4>
+          <ul class="footer-links">
+            <li><a href="#produce-section" (click)="cartService.activeCategory.set('fruits')">🍎 Fresh Seasonal Fruits</a></li>
+            <li><a href="#produce-section" (click)="cartService.activeCategory.set('greens')">🥬 Hydroponic Greens & Herbs</a></li>
+            <li><a href="#produce-section" (click)="cartService.activeCategory.set('veggies')">🥕 Daily Kitchen Essentials</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Freshness Guarantee</h4>
+          <p class="footer-help-text">
+            If any fruit or vegetable is not up to your culinary standards, report via WhatsApp or call within 24 hours for an instant 100% refund.
+          </p>
+          <div class="delivery-threshold-badge">
+            <span>🚚 Free Delivery above ₹299</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 FreshCart Organic Retail Private Limited. Built with Angular 18+, Signals, and Django REST Framework.</p>
+        <div class="footer-bottom-links">
+          <span>Terms of Service</span>
+          <span>•</span>
+          <span>Privacy Policy</span>
+          <span>•</span>
+          <span>FSSAI Lic. #11522026000412</span>
+          <span>•</span>
+          <a href="#admin" (click)="openAdminView(); $event.preventDefault()" style="color: #417050; font-weight: 700; text-decoration: underline; cursor: pointer;">🌾 Farm Manager Portal</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Slide-Over Basket Drawer -->
+  <app-cart-drawer></app-cart-drawer>
+
+  <!-- Checkout Modal -->
+  <app-checkout-modal></app-checkout-modal>
+
+  <!-- Order Success Confirmation Modal -->
+  <app-order-success-modal></app-order-success-modal>
+
+  <!-- Auth Modal Gate -->
+  <app-auth-modal></app-auth-modal>
+}
+
+  <!-- Real-time Toast Feedback -->
+  @if (cartService.toast()) {
+    <div 
+      class="toast-notification animate-scale-up" 
+      [class.info]="cartService.toast()?.type === 'info'"
+    >
+      <span class="toast-icon">{{ cartService.toast()?.type === 'info' ? 'ℹ️' : '🌿' }}</span>
+      <span class="toast-text">{{ cartService.toast()?.message }}</span>
+    </div>
+  }
+
+</div>

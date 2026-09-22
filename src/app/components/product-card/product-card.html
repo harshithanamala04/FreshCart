@@ -1,0 +1,115 @@
+<article class="product-card">
+  
+  <!-- Image & Badges Container -->
+  <div class="product-media aspect-square">
+    <img 
+      [src]="product.image_url" 
+      [alt]="product.name + ' - FreshCart Organic'" 
+      loading="lazy" 
+      width="320"
+      height="320"
+      class="product-img"
+      (error)="handleImageError($event)"
+    />
+
+    <!-- Badges Overlay -->
+    <div class="media-badges-top">
+      @if (product.freshness_tag) {
+        <span class="badge badge-sage freshness-badge">
+          🌿 {{ product.freshness_tag }}
+        </span>
+      }
+      @if (product.discount_percentage && product.discount_percentage > 0) {
+        <span class="badge badge-peach discount-badge">
+          -{{ product.discount_percentage }}%
+        </span>
+      }
+    </div>
+
+    @if (product.is_organic) {
+      <div class="organic-seal" title="Certified Chemical-Free Organic">
+        <span>BIO</span>
+      </div>
+    }
+  </div>
+
+  <!-- Content & Pricing Container -->
+  <div class="product-body">
+    
+    <!-- Category & Rating -->
+    <div class="body-top-row">
+      <span class="product-category">{{ product.category_name }}</span>
+      <div class="product-rating" title="Rating: {{ product.rating }} / 5">
+        <span class="star-icon">★</span>
+        <span class="rating-num">{{ product.rating }}</span>
+        <span class="review-count">({{ product.review_count }})</span>
+      </div>
+    </div>
+
+    <!-- Product Title -->
+    <h3 class="product-title" [title]="product.name">
+      {{ product.name }}
+    </h3>
+
+    <!-- Tagline / Description Hook -->
+    <p class="product-tagline" [title]="product.tagline">
+      {{ product.tagline }}
+    </p>
+
+    <!-- Unit Metric (e.g. 1 kg, 500g, bunch) -->
+    <div class="unit-badge">
+      <span>Unit: <strong>{{ product.unit }}</strong></span>
+    </div>
+
+    <!-- Pricing and Action Stepper Footer -->
+    <div class="product-footer">
+      <div class="price-stack">
+        <div class="current-price">
+          <span class="currency-symbol">₹</span>
+          <span class="price-value">{{ product.price }}</span>
+        </div>
+        @if (product.original_price && product.original_price > product.price) {
+          <div class="original-price">
+            <span>₹{{ product.original_price }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Action Stepper / Add Button -->
+      <div class="action-block">
+        @if (quantity() === 0) {
+          <button 
+            type="button" 
+            class="btn-add" 
+            (click)="onAdd($event)" 
+            aria-label="Add {{ product.name }} to cart"
+          >
+            <span class="plus-sign">+</span>
+            <span>ADD</span>
+          </button>
+        } @else {
+          <div class="stepper-pill">
+            <button 
+              type="button" 
+              class="stepper-btn minus" 
+              (click)="onDecrement($event)" 
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <span class="stepper-qty">{{ quantity() }}</span>
+            <button 
+              type="button" 
+              class="stepper-btn plus" 
+              (click)="onIncrement($event)" 
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</article>

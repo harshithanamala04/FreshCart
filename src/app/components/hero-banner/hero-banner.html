@@ -1,0 +1,70 @@
+<section class="hero-section">
+  <div class="container hero-container">
+    <div class="hero-content">
+      <!-- Minimal Editorial Headline -->
+      <h1 class="hero-headline">
+        Grown with care, harvested at peak perfection.
+      </h1>
+
+      <!-- Minimal Clean CTA -->
+      <div class="hero-actions">
+        <button class="btn-primary hero-cta-btn" (click)="scrollToProduce()">
+          <span>Explore Fresh Harvest</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Visual Farm Vignette - Sliding Image Carousel -->
+    <div class="hero-visual">
+      <div 
+        class="visual-card-main carousel-card" 
+        (mouseenter)="pauseCarousel()" 
+        (mouseleave)="resumeCarousel()"
+        (touchstart)="onTouchStart($event)"
+        (touchend)="onTouchEnd($event)"
+        tabindex="0"
+        (keydown.arrowLeft)="prevSlide()"
+        (keydown.arrowRight)="nextSlide()"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Fresh harvest farm photo gallery"
+      >
+        <!-- Sliding Slides Track -->
+        <div 
+          class="carousel-track" 
+          [style.transform]="'translateX(-' + (currentSlide() * 100) + '%)'"
+        >
+          @for (slide of slides; track slide.id; let i = $index) {
+            <div class="carousel-slide" [class.is-active]="currentSlide() === i">
+              <img 
+                [src]="slide.imageUrl" 
+                [alt]="slide.alt"
+                class="hero-main-img"
+                [loading]="i === 0 ? 'eager' : 'lazy'"
+                [attr.fetchpriority]="i === 0 ? 'high' : 'auto'"
+              />
+            </div>
+          }
+        </div>
+
+        <!-- Carousel Pagination Dots (Centered) -->
+        <div class="carousel-indicators" role="tablist" aria-label="Slide selection">
+          @for (slide of slides; track slide.id; let i = $index) {
+            <button 
+              type="button" 
+              class="indicator-dot" 
+              [class.active]="currentSlide() === i"
+              (click)="goToSlide(i); $event.stopPropagation()"
+              [attr.aria-label]="'Go to slide ' + (i + 1)"
+              [attr.aria-selected]="currentSlide() === i"
+              role="tab"
+            ></button>
+          }
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
