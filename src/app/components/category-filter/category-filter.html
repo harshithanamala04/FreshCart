@@ -1,0 +1,32 @@
+<div class="category-filter-wrapper">
+  <div class="category-filter-scroll">
+    
+    <!-- All Produce Pill -->
+    <button 
+      type="button" 
+      class="cat-pill"
+      [class.active]="cartService.activeCategory() === 'all'"
+      (click)="selectCategory('all')"
+    >
+      <span class="cat-icon">🧺</span>
+      <span class="cat-name">All Fresh Harvest</span>
+    </button>
+
+    <!-- Dynamic Category Pills -->
+    @for (cat of categories(); track cat.id) {
+      <button 
+        type="button" 
+        class="cat-pill"
+        [class.active]="cartService.activeCategory() === cat.slug"
+        (click)="selectCategory(cat.slug)"
+      >
+        <span class="cat-icon">{{ cat.icon }}</span>
+        <span class="cat-name">{{ cat.name }}</span>
+        @if (cat.products_count) {
+          <span class="cat-count">{{ cat.products_count }}</span>
+        }
+      </button>
+    }
+
+  </div>
+</div>

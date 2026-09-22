@@ -1,0 +1,63 @@
+@if (cartService.isSuccessModalOpen() && cartService.lastPlacedOrder()) {
+  <div class="modal-backdrop animate-fade-in" (click)="cartService.closeSuccessModal()"></div>
+
+  <div class="modal-wrapper">
+    <div class="success-card animate-scale-up" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      
+      <!-- Celebration Icon -->
+      <div class="celebration-circle">
+        <span class="celebration-icon">🌾</span>
+        <div class="confetti-ring"></div>
+      </div>
+
+      <div class="badge badge-sage harvest-tag">Order Confirmed • Direct from Farm Hub</div>
+
+      <h2 id="success-title" class="success-title">Thank You, {{ cartService.lastPlacedOrder()?.customer_name }}!</h2>
+      <p class="success-subtitle">
+        Your order has been sent to our temperature-controlled packing station. Produce is being packed in biodegradable pouches.
+      </p>
+
+      <!-- Order ID Pill -->
+      <div class="order-id-box">
+        <span class="order-id-label">Order Reference ID:</span>
+        <span class="order-id-code">{{ cartService.lastPlacedOrder()?.order_number }}</span>
+      </div>
+
+      <!-- Key Details Card -->
+      <div class="details-summary-card">
+        <div class="detail-item">
+          <span class="detail-icon">⏱️</span>
+          <div class="detail-text">
+            <span class="detail-label">Delivery Slot</span>
+            <span class="detail-value">{{ cartService.lastPlacedOrder()?.delivery_slot }}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-icon">📍</span>
+          <div class="detail-text">
+            <span class="detail-label">Delivering to</span>
+            <span class="detail-value">{{ cartService.lastPlacedOrder()?.delivery_address }}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-icon">💳</span>
+          <div class="detail-text">
+            <span class="detail-label">Payment Mode</span>
+            <span class="detail-value">{{ cartService.lastPlacedOrder()?.payment_method }} • Total: ₹{{ cartService.lastPlacedOrder()?.total_amount }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="success-actions">
+        <button type="button" class="btn-primary continue-btn" (click)="onContinueShopping()">
+          <span>Continue Shopping Fresh Harvest</span>
+          <span>→</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
