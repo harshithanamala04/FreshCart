@@ -36,6 +36,12 @@ export class ApiService {
     return [...this.fallbackCategories];
   }
 
+  getInitialProducts(): Product[] {
+    const custom = this.getCustomProducts();
+    const merged = [...custom, ...this.fallbackProducts.filter(it => !custom.some(c => c.id === it.id))];
+    return this.normalizeProducts(merged);
+  }
+
   private readonly fallbackProducts: Product[] = [
     // === All 46 Fruits with simple naming ===
     {
@@ -1955,12 +1961,27 @@ export class ApiService {
     return this.http.get<any>(`${this.baseUrl}/products/`, { params, headers }).pipe(
       map(res => {
         let items: Product[] = [];
-        if (Array.isArray(res)) {
+        if (Array.isArray(res) && res.length > 0) {
           items = res;
-        } else if (res && Array.isArray(res.results)) {
+        } else if (res && Array.isArray(res.results) && res.results.length > 0) {
           items = res.results;
         } else {
-          items = this.fallbackProducts;
+          // If backend returns empty results (e.g. unseeded remote database), fall back to complete 93 items
+          let filtered = [...this.fallbackProducts];
+          if (categorySlug && categorySlug !== 'all') {
+            filtered = filtered.filter(p => p.category_slug === categorySlug);
+          }
+          if (search && search.trim()) {
+            const q = search.toLowerCase().trim();
+            filtered = filtered.filter(p =>
+              p.name.toLowerCase().includes(q) ||
+              (p.category_name && p.category_name.toLowerCase().includes(q)) ||
+              (p.category_slug && p.category_slug.toLowerCase().includes(q)) ||
+              (p.tagline && p.tagline.toLowerCase().includes(q)) ||
+              (p.freshness_tag && p.freshness_tag.toLowerCase().includes(q))
+            );
+          }
+          items = filtered;
         }
         const custom = this.getCustomProducts();
         const merged = [...custom, ...items.filter(it => !custom.some(c => c.id === it.id))];

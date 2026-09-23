@@ -19,8 +19,8 @@ export class ProductGridComponent implements OnInit {
   cartService = inject(CartService);
   authService = inject(AuthService);
 
-  allProducts = signal<Product[]>([]);
-  isLoading = signal(true);
+  allProducts = signal<Product[]>(this.apiService.getInitialProducts());
+  isLoading = signal(false);
   sortOption = signal<string>('featured');
 
   // Real-time reactive Signal filtering by product name, category, and tags
@@ -68,10 +68,14 @@ export class ProductGridComponent implements OnInit {
   }
 
   loadProducts(): void {
-    this.isLoading.set(true);
+    if (this.allProducts().length === 0) {
+      this.isLoading.set(true);
+    }
     this.apiService.getProducts('all').subscribe({
       next: (data) => {
-        this.allProducts.set(data);
+        if (data && data.length > 0) {
+          this.allProducts.set(data);
+        }
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

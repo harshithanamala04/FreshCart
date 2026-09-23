@@ -4,7 +4,9 @@ API ViewSets for FreshCart.
 
 import os
 import uuid
+import logging
 from django.conf import settings
+from django.core.management import call_command
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes, parser_classes
@@ -13,6 +15,17 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from .models import Category, Product, Order
 from .serializers import CategorySerializer, ProductSerializer, OrderSerializer
+
+logger = logging.getLogger(__name__)
+
+
+def ensure_database_seeded():
+    """Ensure remote or newly migrated database is seeded with authentic produce items."""
+    try:
+        if Category.objects.count() == 0 or Product.objects.count() == 0:
+            call_command('seed_data')
+    except Exception as e:
+        logger.warning(f"Auto-seed notification: {e}")
 
 
 class StandardProducePagination(PageNumberPagination):
@@ -28,6 +41,10 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all().prefetch_related('products')
     serializer_class = CategorySerializer
     lookup_field = 'slug'
+
+    def get_queryset(self):
+        ensure_database_seeded()
+        return super().get_queryset()
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -46,6 +63,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering = ['-is_featured', '-rating']
 
     def get_queryset(self):
+        ensure_database_seeded()
         queryset = super().get_queryset()
         include_out_of_stock = self.request.query_params.get('include_out_of_stock', 'false').lower() == 'true'
         if not include_out_of_stock and self.action == 'list':
