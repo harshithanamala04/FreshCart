@@ -1,0 +1,332 @@
+@if (authService.isAuthModalOpen()) {
+  <div class="modal-overlay" (click)="close()" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      
+      <!-- Close button -->
+      <button class="close-btn" (click)="close()" aria-label="Close modal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      @if (authView() === 'google_chooser') {
+        <!-- Google Real-Time Account Chooser Screen -->
+        <div class="google-chooser-wrapper">
+          <div class="google-view-header">
+            <button type="button" class="btn-google-back" (click)="backToCredentials()" aria-label="Back to FreshCart sign-in">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Back</span>
+            </button>
+
+            <div class="google-brand-center">
+              <svg class="google-icon-large" viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <h2 class="google-view-title">Sign in with Google</h2>
+              <p class="google-view-subtitle">Choose or enter an account to continue to <strong>FreshCart</strong></p>
+            </div>
+          </div>
+
+          @if (errorMessage()) {
+            <div class="error-banner">
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+
+          <!-- Saved Accounts List -->
+          @if (authService.savedGoogleAccounts().length > 0 && !showAddGoogleForm()) {
+            <div class="google-account-list">
+              @for (acc of authService.savedGoogleAccounts(); track acc.email) {
+                <div 
+                  class="google-account-item" 
+                  [class.account-signing-in]="selectedAccountEmail() === acc.email"
+                  (click)="selectSavedGoogleAccount(acc)"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div class="google-avatar-circle">
+                    {{ (acc.name || acc.email)[0].toUpperCase() }}
+                  </div>
+                  <div class="google-account-info">
+                    <span class="google-acc-name">{{ acc.name }}</span>
+                    <span class="google-acc-email">{{ acc.email }}</span>
+                  </div>
+                  @if (selectedAccountEmail() === acc.email) {
+                    <div class="account-spinner" title="Signing in..."></div>
+                  } @else {
+                    <button type="button" class="btn-remove-acc" (click)="removeGoogleAccount(acc.email, $event)" title="Remove account">✕</button>
+                  }
+                </div>
+              }
+
+              <button type="button" class="btn-add-another-acc" (click)="showAddGoogleForm.set(true)">
+                <span class="add-icon">+</span>
+                <span>Use another account</span>
+              </button>
+            </div>
+          } @else {
+            <!-- Real-Time User Input for Google Account -->
+            <form (ngSubmit)="submitNewGoogleAccount()" class="google-enter-form">
+              <div class="form-group">
+                <label for="google-email">Google Email Address *</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <input 
+                    id="google-email" 
+                    name="googleEmail"
+                    type="email" 
+                    [(ngModel)]="googleEmail" 
+                    placeholder="e.g. yourname@gmail.com" 
+                    required 
+                    autofocus
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="google-name">Your Full Name (Optional)</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <input 
+                    id="google-name" 
+                    name="googleName"
+                    type="text" 
+                    [(ngModel)]="googleName" 
+                    placeholder="e.g. Alex Sharma" 
+                  />
+                </div>
+              </div>
+
+              <div class="google-form-actions">
+                @if (authService.savedGoogleAccounts().length > 0) {
+                  <button type="button" class="btn-cancel-google" (click)="showAddGoogleForm.set(false)">
+                    Cancel
+                  </button>
+                }
+                <button 
+                  type="submit" 
+                  class="btn-submit-google"
+                  [disabled]="isGoogleSubmitting()"
+                >
+                  @if (isGoogleSubmitting()) {
+                    <span class="spinner-google-white"></span>
+                    <span>Signing in...</span>
+                  } @else {
+                    <span>Continue with Google</span>
+                    <span class="btn-arrow">→</span>
+                  }
+                </button>
+              </div>
+
+              <div class="google-popup-option">
+                <button 
+                  type="button" 
+                  class="btn-google-popup-action" 
+                  (click)="signInWithGooglePopup()"
+                  [disabled]="isGoogleSubmitting()">
+                  <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>Instant 1-Click Google Sign-In</span>
+                </button>
+              </div>
+            </form>
+          }
+
+          <div class="google-consent-notice">
+            <span>To continue, Google will share your name and email with FreshCart.</span>
+          </div>
+        </div>
+      } @else {
+        <!-- Standard Modal Content -->
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="badge">
+            <span class="badge-icon">🌿</span>
+            <span class="badge-text">Direct-From-Farm Access</span>
+          </div>
+          <h2 id="modal-title" class="title">
+            {{ activeTab() === 'signin' ? 'Welcome to FreshCart' : 'Join the Fresh Revolution' }}
+          </h2>
+          <p class="subtitle">
+            Unlock 100% organic, handpicked Indian farm produce at fair ₹ INR wholesale prices.
+          </p>
+        </div>
+
+        <!-- Tab Switcher -->
+        <div class="tab-switcher">
+          <button 
+            type="button"
+            class="tab-btn" 
+            [class.active]="activeTab() === 'signin'"
+            (click)="setTab('signin')">
+            Sign In
+          </button>
+          <button 
+            type="button"
+            class="tab-btn" 
+            [class.active]="activeTab() === 'register'"
+            (click)="setTab('register')">
+            Create Account
+          </button>
+        </div>
+
+        <!-- Continue with Google Button -->
+        <button 
+          type="button" 
+          class="btn-google" 
+          (click)="openGoogleFlow()" 
+          [disabled]="isSubmitting() || isGoogleSubmitting()"
+          aria-label="Continue with Google"
+        >
+          @if (isGoogleSubmitting()) {
+            <span class="spinner-google"></span>
+            <span>Connecting with Google...</span>
+          } @else {
+            <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          }
+        </button>
+
+        <!-- Divider -->
+        <div class="auth-divider">
+          <span class="divider-line"></span>
+          <span class="divider-text">{{ activeTab() === 'signin' ? 'or sign in with credentials' : 'or register with credentials' }}</span>
+          <span class="divider-line"></span>
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage()) {
+          <div class="error-banner">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <div class="error-text-block">
+              <span>{{ errorMessage() }}</span>
+              @if (activeTab() === 'register' && (errorMessage()?.includes('already exists') || errorMessage()?.includes('sign in'))) {
+                <button type="button" class="btn-switch-tab" (click)="setTab('signin')">
+                  Switch to Sign In with your password →
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Form -->
+        <form (ngSubmit)="onSubmit()" class="auth-form" autocomplete="off">
+          <div class="form-group">
+            <label for="username">{{ activeTab() === 'signin' ? 'Username or Email' : 'Username *' }}</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <input 
+                id="username" 
+                name="username"
+                type="text" 
+                [(ngModel)]="username" 
+                placeholder="Enter your username or email" 
+                autocomplete="off"
+                required />
+            </div>
+          </div>
+
+          @if (activeTab() === 'register') {
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <input 
+                  id="email" 
+                  name="email"
+                  type="email" 
+                  [(ngModel)]="email" 
+                  placeholder="yourname@domain.com" 
+                  autocomplete="email" 
+                  required />
+              </div>
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="password">{{ activeTab() === 'signin' ? 'Password' : 'Password (min. 6 characters) *' }}</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <input 
+                id="password" 
+                name="password"
+                type="password" 
+                [(ngModel)]="password" 
+                placeholder="Enter your password" 
+                autocomplete="new-password"
+                required />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            class="btn-submit" 
+            [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner"></span>
+              <span>Authenticating...</span>
+            } @else {
+              <span>{{ activeTab() === 'signin' ? 'Sign In & Unlock Harvest' : 'Join & Unlock Catalog' }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            }
+          </button>
+        </form>
+
+        <!-- Trust Badges -->
+        <div class="trust-footer">
+          <div class="trust-item">
+            <span class="trust-icon">🌱</span>
+            <span>100% Certified Organic</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">⚡</span>
+            <span>Fast Farm Dispatch</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">🇮🇳</span>
+            <span>₹ INR Fair Trade</span>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+}

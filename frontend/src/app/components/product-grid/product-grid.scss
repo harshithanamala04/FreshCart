@@ -1,0 +1,192 @@
+.produce-grid-section {
+  padding: 10px 0 64px;
+}
+
+.grid-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .items-count-pill {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      background-color: var(--sage-light);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--sage-border);
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .sort-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .sort-select-wrapper {
+      position: relative;
+
+      .sort-select {
+        appearance: none;
+        background-color: #FFFFFF;
+        border: 1.5px solid var(--border-card);
+        border-radius: var(--radius-full);
+        padding: 8px 32px 8px 14px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+
+        &:hover, &:focus {
+          border-color: var(--primary-green);
+          box-shadow: 0 0 0 2px rgba(46, 92, 62, 0.1);
+        }
+      }
+
+      &::after {
+        content: '▼';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.6rem;
+        color: var(--text-muted);
+        pointer-events: none;
+      }
+    }
+  }
+}
+
+/* Responsive Cards Grid */
+.product-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px;
+
+  @media (min-width: 520px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 860px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1140px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Skeleton Loading */
+.loading-skeletons {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px;
+
+  @media (min-width: 520px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 860px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1140px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .skeleton-card {
+    background-color: #FFFFFF;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border-card);
+
+    .skeleton-img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: linear-gradient(90deg, #F0EAE1 25%, #F7F3EE 50%, #F0EAE1 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    .skeleton-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .skeleton-line {
+        height: 12px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #F0EAE1 25%, #F7F3EE 50%, #F0EAE1 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+
+        &.short { width: 35%; }
+        &.title { width: 75%; height: 16px; }
+        &.full { width: 100%; }
+      }
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Empty State */
+.empty-state-box {
+  background-color: #FFFFFF;
+  border: 1.5px dashed var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 48px 24px;
+  text-align: center;
+  max-width: 540px;
+  margin: 32px auto;
+
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+
+  .empty-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .empty-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+}

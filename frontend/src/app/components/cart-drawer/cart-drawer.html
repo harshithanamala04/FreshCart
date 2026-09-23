@@ -1,0 +1,164 @@
+@if (cartService.isCartOpen()) {
+  <div class="cart-drawer-backdrop animate-fade-in" (click)="cartService.closeCart()"></div>
+}
+
+<aside class="cart-drawer-panel" [class.open]="cartService.isCartOpen()" aria-label="Shopping Cart">
+  
+  <!-- Drawer Header -->
+  <div class="drawer-header">
+    <div class="header-title-box">
+      <h2 class="drawer-title">My Farm Basket</h2>
+      <span class="drawer-count-badge">{{ cartService.totalItemCount() }} items</span>
+    </div>
+    <button type="button" class="drawer-close-btn" (click)="cartService.closeCart()" aria-label="Close cart">
+      ✕
+    </button>
+  </div>
+
+  <!-- Free Delivery Progress Meter -->
+  <div class="delivery-progress-banner">
+    @if (cartService.deliveryProgress().unlocked) {
+      <div class="progress-message unlocked">
+        <span class="progress-emoji">🎉</span>
+        <span>You have unlocked <strong>FREE Delivery!</strong></span>
+      </div>
+    } @else {
+      <div class="progress-message">
+        <span class="progress-emoji">🚚</span>
+        <span>
+          Add <strong>₹{{ cartService.deliveryProgress().amountRemaining }}</strong> more for <strong>FREE Delivery</strong>
+        </span>
+      </div>
+    }
+    
+    <div class="progress-track">
+      <div 
+        class="progress-fill" 
+        [style.width.%]="cartService.deliveryProgress().percent"
+        [class.completed]="cartService.deliveryProgress().unlocked"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Drawer Body -->
+  <div class="drawer-body">
+    @if (cartService.cartItems().length === 0) {
+      <!-- Empty Basket State -->
+      <div class="empty-basket-state">
+        <div class="empty-basket-icon">🧺</div>
+        <h3 class="empty-basket-title">Your basket is empty</h3>
+        <p class="empty-basket-desc">Add some crisp, organic fruits and greens freshly harvested from local Indian farms.</p>
+        <button type="button" class="btn-primary" (click)="cartService.closeCart()">
+          Browse Fresh Produce
+        </button>
+      </div>
+    } @else {
+      
+      <!-- Cart Items List -->
+      <div class="cart-items-list">
+        @for (item of cartService.cartItems(); track item.product.id) {
+          <div class="cart-item-row">
+            <img [src]="item.product.image_url" [alt]="item.product.name" class="cart-item-img" />
+            
+            <div class="cart-item-info">
+              <h4 class="cart-item-name">{{ item.product.name }}</h4>
+              <span class="cart-item-unit">{{ item.product.unit }}</span>
+              <div class="cart-item-pricing">
+                <span class="item-rate">₹{{ item.product.price }} each</span>
+                <span class="item-total">₹{{ getItemTotal(item) }}</span>
+              </div>
+            </div>
+
+            <!-- Stepper -->
+            <div class="item-stepper">
+              <button 
+                type="button" 
+                class="cart-qty-btn" 
+                (click)="cartService.updateQuantity(item.product.id, -1)"
+                title="Decrease"
+              >−</button>
+              <span class="cart-qty-val">{{ item.quantity }}</span>
+              <button 
+                type="button" 
+                class="cart-qty-btn" 
+                (click)="cartService.updateQuantity(item.product.id, 1)"
+                title="Increase"
+              >+</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Delivery Slot Preview Selection -->
+      <div class="drawer-slot-section">
+        <div class="slot-header">
+          <span class="slot-title">⚡ Preferred Delivery Slot</span>
+          <span class="slot-badge">Hyperlocal</span>
+        </div>
+        <div class="slot-options">
+          @for (slot of deliverySlots; track slot.id) {
+            <div 
+              class="slot-card"
+              [class.selected]="selectedSlot() === slot.name"
+              (click)="selectSlot(slot.name)"
+            >
+              <div class="slot-indicator"></div>
+              <div class="slot-meta">
+                <span class="slot-name">{{ slot.name }}</span>
+                <span class="slot-time">{{ slot.time }}</span>
+              </div>
+              <span class="slot-tag">{{ slot.note }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Bill Breakdown -->
+      <div class="bill-summary-card">
+        <div class="bill-row">
+          <span>Item Subtotal</span>
+          <span class="bill-val">₹{{ cartService.subtotal() }}</span>
+        </div>
+        <div class="bill-row">
+          <span>Delivery Fee</span>
+          @if (cartService.deliveryFee() === 0) {
+            <span class="bill-val free">FREE</span>
+          } @else {
+            <span class="bill-val">₹{{ cartService.deliveryFee() }}</span>
+          }
+        </div>
+        <div class="bill-row">
+          <span>Chemical-Free Packaging</span>
+          <span class="bill-val free">FREE</span>
+        </div>
+        <div class="bill-divider"></div>
+        <div class="bill-row total-row">
+          <span>To Pay</span>
+          <span class="bill-total-val">₹{{ cartService.grandTotal() }}</span>
+        </div>
+      </div>
+
+    }
+  </div>
+
+  <!-- Drawer Footer (Checkout Button) -->
+  @if (cartService.cartItems().length > 0) {
+    <div class="drawer-footer">
+      <button 
+        type="button" 
+        class="checkout-submit-btn" 
+        (click)="onProceedToCheckout()"
+      >
+        <div class="checkout-btn-text">
+          <span>Proceed to Checkout</span>
+          <small>{{ cartService.totalItemCount() }} items • {{ selectedSlot() }}</small>
+        </div>
+        <div class="checkout-btn-price">
+          <span>₹{{ cartService.grandTotal() }}</span>
+          <span class="checkout-arrow">→</span>
+        </div>
+      </button>
+    </div>
+  }
+
+</aside>

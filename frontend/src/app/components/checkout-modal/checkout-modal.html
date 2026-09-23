@@ -1,0 +1,260 @@
+@if (cartService.isCheckoutOpen()) {
+  <div class="modal-backdrop animate-fade-in" (click)="cartService.closeCheckout()"></div>
+
+  <div class="modal-wrapper">
+    <div class="modal-container animate-scale-up" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="header-text">
+          <span class="header-pretitle">FreshCart Express</span>
+          <h2 id="checkout-title" class="header-title">Checkout & Delivery Details</h2>
+        </div>
+        <button type="button" class="modal-close-btn" (click)="cartService.closeCheckout()" aria-label="Close Checkout">
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        
+        @if (errorMessage()) {
+          <div class="error-alert">
+            <span>⚠️</span>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <form (ngSubmit)="onSubmitOrder()" class="checkout-form" id="checkout-form">
+          
+          <!-- Section 1: Customer Contact -->
+          <fieldset class="form-section">
+            <legend class="section-legend">
+              <span class="legend-num">1</span>
+              <span>Contact Information</span>
+            </legend>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="c-name">Full Name *</label>
+                <input 
+                  type="text" 
+                  id="c-name" 
+                  name="customerName" 
+                  [(ngModel)]="customerName" 
+                  required 
+                  placeholder="e.g. Priya Sharma"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="c-phone">Phone Number (WhatsApp Delivery Updates) *</label>
+                <div class="phone-input-group">
+                  <span class="phone-prefix">+91</span>
+                  <input 
+                    type="tel" 
+                    id="c-phone" 
+                    name="customerPhone" 
+                    [(ngModel)]="customerPhone" 
+                    required 
+                    placeholder="e.g. 98765 43210"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="c-email">Email Receipt (Optional)</label>
+              <input 
+                type="email" 
+                id="c-email" 
+                name="customerEmail" 
+                [(ngModel)]="customerEmail" 
+                placeholder="e.g. priya.sharma@example.in"
+              />
+            </div>
+          </fieldset>
+
+          <!-- Section 2: Delivery Address -->
+          <fieldset class="form-section">
+            <legend class="section-legend">
+              <span class="legend-num">2</span>
+              <span>Delivery Address</span>
+            </legend>
+            
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="c-flat">Flat / House No. / Building *</label>
+                <input 
+                  type="text" 
+                  id="c-flat" 
+                  name="flatNumber" 
+                  [(ngModel)]="flatNumber" 
+                  required 
+                  placeholder="e.g. Flat 402, Green Glen Orchid"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="c-pin">Pincode *</label>
+                <input 
+                  type="text" 
+                  id="c-pin" 
+                  name="pincode" 
+                  [(ngModel)]="pincode" 
+                  required 
+                  placeholder="e.g. 400050"
+                />
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="c-street">Street Address / Landmark *</label>
+              <input 
+                type="text" 
+                id="c-street" 
+                name="streetAddress" 
+                [(ngModel)]="streetAddress" 
+                required 
+                placeholder="e.g. 14th Main Road, Bandra West, Mumbai"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="c-notes">Delivery Instructions (Optional)</label>
+              <input 
+                type="text" 
+                id="c-notes" 
+                name="notes" 
+                [(ngModel)]="notes" 
+                placeholder="e.g. Leave with security guard, ring doorbell twice, etc."
+              />
+            </div>
+          </fieldset>
+
+          <!-- Section 3: Delivery Slot -->
+          <fieldset class="form-section">
+            <legend class="section-legend">
+              <span class="legend-num">3</span>
+              <span>Select Delivery Slot</span>
+            </legend>
+
+            <div class="slot-selection-list">
+              @for (slot of slots; track slot.id) {
+                <label 
+                  class="slot-radio-card"
+                  [class.selected]="selectedSlot === slot.label"
+                >
+                  <input 
+                    type="radio" 
+                    name="deliverySlot" 
+                    [value]="slot.label" 
+                    [(ngModel)]="selectedSlot"
+                  />
+                  <div class="slot-card-body">
+                    <span class="slot-card-title">{{ slot.label }}</span>
+                    <span class="slot-card-sub">{{ slot.sub }}</span>
+                  </div>
+                  <span class="slot-status-pill">Available</span>
+                </label>
+              }
+            </div>
+          </fieldset>
+
+          <!-- Section 4: Payment Method -->
+          <fieldset class="form-section">
+            <legend class="section-legend">
+              <span class="legend-num">4</span>
+              <span>Payment Method</span>
+            </legend>
+
+            <div class="payment-methods-grid">
+              @for (pm of paymentMethods; track pm.id) {
+                <label 
+                  class="payment-option-card"
+                  [class.selected]="selectedPayment === pm.id"
+                >
+                  <input 
+                    type="radio" 
+                    name="paymentMethod" 
+                    [value]="pm.id" 
+                    [(ngModel)]="selectedPayment"
+                  />
+                  <span class="payment-icon">{{ pm.icon }}</span>
+                  <div class="payment-info">
+                    <span class="payment-name">{{ pm.name }}</span>
+                    <span class="payment-desc">{{ pm.desc }}</span>
+                  </div>
+                </label>
+              }
+            </div>
+
+            @if (selectedPayment === 'UPI') {
+              <div class="upi-extra-box animate-fade-in">
+                <span class="upi-badge">⚡ Instant UPI Auto-Validation</span>
+                <p>Simulating quick UPI approval via Google Pay / PhonePe / Paytm.</p>
+              </div>
+            }
+          </fieldset>
+
+        </form>
+
+        <!-- Order Summary Sidecard -->
+        <div class="order-recap-box">
+          <div class="recap-header">
+            <span>Order Summary ({{ cartService.totalItemCount() }} items)</span>
+          </div>
+
+          <div class="recap-items">
+            @for (item of cartService.cartItems(); track item.product.id) {
+              <div class="recap-item-row">
+                <span class="recap-name">{{ item.product.name }} ({{ item.product.unit }}) × {{ item.quantity }}</span>
+                <span class="recap-price">₹{{ getItemTotal(item) }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="recap-totals">
+            <div class="recap-row">
+              <span>Item Subtotal</span>
+              <span>₹{{ cartService.subtotal() }}</span>
+            </div>
+            <div class="recap-row">
+              <span>Delivery Fee</span>
+              @if (cartService.deliveryFee() === 0) {
+                <span class="free-text">FREE</span>
+              } @else {
+                <span>₹{{ cartService.deliveryFee() }}</span>
+              }
+            </div>
+            <div class="recap-row total">
+              <span>Grand Total</span>
+              <span class="total-val">₹{{ cartService.grandTotal() }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="cartService.closeCheckout()">
+          Back to Basket
+        </button>
+        <button 
+          type="button" 
+          class="btn-primary btn-submit-order" 
+          (click)="onSubmitOrder()"
+          [disabled]="isSubmitting() || cartService.cartItems().length === 0"
+        >
+          @if (isSubmitting()) {
+            <span class="spinner-dot"></span>
+            <span>Securing Fresh Order...</span>
+          } @else {
+            <span>Confirm & Place Order • ₹{{ cartService.grandTotal() }}</span>
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

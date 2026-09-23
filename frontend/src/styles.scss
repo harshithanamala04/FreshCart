@@ -1,0 +1,274 @@
+/* ==========================================================================
+   FreshCart Organic Design System & Theme
+   Aesthetic: Calming, premium, clean pastel botanical palette
+   Canvas: Warm oat milk / cream (#FAF8F5)
+   Botanical Accents: Sage green (#417050), Soft peach (#FDEEE9), Morning lemon (#FEF8EB)
+   ========================================================================== */
+
+:root {
+  /* Canvas & Backgrounds */
+  --bg-canvas: #FAF8F5;
+  --bg-surface: #FFFFFF;
+  --bg-surface-alt: #F4EFE8;
+  --bg-surface-elevated: #FFFFFF;
+
+  /* Primary Botanical Green */
+  --primary-green: #2E5C3E;
+  --primary-green-hover: #244B32;
+  --primary-green-active: #1D3B28;
+  --sage-main: #417050;
+  --sage-light: #EEF5F0;
+  --sage-border: #D8EADB;
+
+  /* Secondary Accents: Soft Peach Blush */
+  --peach-bg: #FDEEE9;
+  --peach-border: #F9D8CE;
+  --peach-accent: #C86842;
+  --peach-hover: #B55733;
+
+  /* Accent: Morning Lemon */
+  --lemon-bg: #FEF8EB;
+  --lemon-border: #F3E2B8;
+  --lemon-text: #9E7418;
+
+  /* Neutral Text & Borders */
+  --text-primary: #1C261E;
+  --text-secondary: #57655B;
+  --text-muted: #7E8C82;
+  --text-light: #A3B0A7;
+  --border-subtle: #E8E3DA;
+  --border-card: #ECE7DE;
+
+  /* Typography */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px -2px rgba(46, 92, 62, 0.05);
+  --shadow-md: 0 6px 20px -3px rgba(46, 92, 62, 0.07), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 16px 36px -6px rgba(46, 92, 62, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  --shadow-drawer: -12px 0 40px -4px rgba(28, 38, 30, 0.18);
+  --shadow-modal: 0 24px 60px -8px rgba(28, 38, 30, 0.22);
+
+  /* Transitions */
+  --transition-fast: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reset & Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Typography Helpers */
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+button {
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sage-border);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sage-main);
+}
+
+/* Utility Containers */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* Pill Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+
+  &.badge-sage {
+    background-color: var(--sage-light);
+    color: var(--primary-green);
+    border: 1px solid var(--sage-border);
+  }
+
+  &.badge-peach {
+    background-color: var(--peach-bg);
+    color: var(--peach-accent);
+    border: 1px solid var(--peach-border);
+  }
+
+  &.badge-lemon {
+    background-color: var(--lemon-bg);
+    color: var(--lemon-text);
+    border: 1px solid var(--lemon-border);
+  }
+
+  &.badge-organic {
+    background: linear-gradient(135deg, #EEF5F0 0%, #E3EFE6 100%);
+    color: var(--primary-green);
+    border: 1px solid var(--sage-border);
+    font-weight: 700;
+  }
+}
+
+/* Interactive Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--primary-green);
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 12px rgba(46, 92, 62, 0.25);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background-color: var(--primary-green-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(46, 92, 62, 0.32);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #FFFFFF;
+  color: var(--primary-green);
+  border: 1.5px solid var(--sage-border);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background-color: var(--sage-light);
+    border-color: var(--primary-green);
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp var(--transition-normal) forwards;
+}

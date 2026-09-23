@@ -1,0 +1,796 @@
+<div class="admin-portal-wrapper">
+
+  <!-- Admin Header Bar -->
+  <header class="admin-topbar">
+    <div class="admin-container topbar-inner">
+      <div class="admin-brand" (click)="closeAdmin.emit()">
+        <span class="brand-leaf">🌿</span>
+        <div class="brand-text">
+          <span class="brand-name">FreshCart</span>
+          <span class="brand-badge">Farm Manager Admin</span>
+        </div>
+      </div>
+
+      @if (isAdminLoggedIn()) {
+        <!-- Navigation Tabs -->
+        <nav class="admin-nav-tabs">
+          <button 
+            type="button" 
+            class="nav-tab-btn" 
+            [class.active]="activeTab() === 'add'"
+            (click)="activeTab.set('add')"
+          >
+            <span class="tab-icon">➕</span>
+            <span>{{ isEditing() ? 'Edit Produce' : 'Add New Produce' }}</span>
+          </button>
+          <button 
+            type="button" 
+            class="nav-tab-btn" 
+            [class.active]="activeTab() === 'inventory'"
+            (click)="activeTab.set('inventory')"
+          >
+            <span class="tab-icon">📦</span>
+            <span>Produce Catalog ({{ products().length }})</span>
+          </button>
+          <button 
+            type="button" 
+            class="nav-tab-btn" 
+            [class.active]="activeTab() === 'orders'"
+            (click)="activeTab.set('orders')"
+          >
+            <span class="tab-icon">📋</span>
+            <span>Customer Orders ({{ orders().length }})</span>
+          </button>
+        </nav>
+
+        <!-- Right Quick Actions -->
+        <div class="topbar-actions">
+          <button type="button" class="btn-view-store" (click)="closeAdmin.emit()" title="Preview the live customer storefront">
+            <span class="store-icon">🛒</span>
+            <span>View Storefront</span>
+            <span class="arrow-icon">↗</span>
+          </button>
+          <button type="button" class="btn-admin-logout" (click)="logoutAdmin()" title="Sign out of Admin Portal">
+            <span>Sign Out</span>
+          </button>
+        </div>
+      } @else {
+        <button type="button" class="btn-view-store" (click)="closeAdmin.emit()">
+          <span>Return to Storefront</span>
+          <span class="arrow-icon">↗</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  <!-- Content Section -->
+  <main class="admin-main">
+    <div class="admin-container">
+
+      @if (!isAdminLoggedIn()) {
+        <div class="admin-login-wrapper">
+          <div class="admin-login-card">
+            
+            @if (authService.isLoggedIn()) {
+              <!-- Logged in as customer without admin rights -->
+              <div class="login-header">
+                <div class="lock-circle" style="background-color: #FEF3EB; color: #D9603B;">
+                  <span>⛔</span>
+                </div>
+                <h1 class="login-title">Administrator Access Required</h1>
+                <p class="login-subtitle">
+                  You are currently signed in as <strong>{{ authService.currentUser()?.username }}</strong>. The Farm Manager Admin Portal requires administrator privileges.
+                </p>
+              </div>
+
+              <div class="access-restricted-actions" style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
+                <button type="button" class="btn-submit-login" (click)="closeAdmin.emit()">
+                  <span>← Return to Customer Storefront</span>
+                </button>
+                <button type="button" class="btn-view-store" (click)="switchToAdmin()" style="justify-content: center; width: 100%;">
+                  <span>Sign In with Administrator Credentials</span>
+                </button>
+              </div>
+
+            } @else {
+              <!-- Unauthenticated: Direct Admin Credentials Sign-In -->
+              <div class="login-header">
+                <div class="lock-circle">
+                  <span>🔐</span>
+                </div>
+                <h1 class="login-title">Farm Manager Admin Access</h1>
+                <p class="login-subtitle">
+                  Sign in directly with your administrator credentials (e.g. <code>admin</code> / <code>admin123</code>) to manage the farm produce catalog and customer orders.
+                </p>
+              </div>
+
+              @if (loginError()) {
+                <div class="error-banner">
+                  <span>{{ loginError() }}</span>
+                </div>
+              }
+
+              <form (ngSubmit)="loginWithCredentials()" class="admin-login-form">
+                <div class="form-group">
+                  <label for="admin-user">Administrator Username or Email</label>
+                  <div class="input-wrapper">
+                    <input 
+                      id="admin-user" 
+                      type="text" 
+                      [(ngModel)]="adminUsername" 
+                      name="adminUsername" 
+                      placeholder="e.g. admin or admin@freshcart.in" 
+                      required 
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="admin-pass">Administrator Password</label>
+                  <div class="input-wrapper">
+                    <input 
+                      id="admin-pass" 
+                      type="password" 
+                      [(ngModel)]="adminPassword" 
+                      name="adminPassword" 
+                      placeholder="••••••••" 
+                      required 
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-submit-login" [disabled]="isLoggingIn()">
+                  <span>{{ isLoggingIn() ? 'Verifying...' : 'Sign In as Administrator' }}</span>
+                  <span class="btn-arrow">→</span>
+                </button>
+              </form>
+
+              <div class="login-divider">
+                <span class="divider-line"></span>
+                <span class="divider-text">storefront</span>
+                <span class="divider-line"></span>
+              </div>
+
+              <button type="button" class="btn-view-store" (click)="closeAdmin.emit()" style="justify-content: center; width: 100%;">
+                <span>← Return to Customer Storefront</span>
+              </button>
+            }
+
+          </div>
+        </div>
+
+      } @else {
+
+        <!-- TAB 1: ADD / EDIT NEW PRODUCE -->
+        @if (activeTab() === 'add') {
+          <div class="tab-content add-produce-view">
+            
+            <div class="section-heading-row">
+              <div>
+                <h1 class="page-title">{{ isEditing() ? 'Edit Farm Produce' : 'Add New Produce to Catalog' }}</h1>
+                <p class="page-subtitle">
+                  Fill in the details below. As you type, the <strong>Live Customer Preview</strong> on the right shows exactly how it looks to buyers!
+                </p>
+              </div>
+
+              @if (isEditing()) {
+                <button type="button" class="btn-cancel-edit-mode" (click)="cancelEdit()">
+                  <span>Cancel Editing</span>
+                </button>
+              }
+            </div>
+
+            <div class="form-preview-grid">
+              
+              <!-- Form Panel (Non-Tech Friendly) -->
+              <div class="produce-form-panel">
+                
+                <!-- 1. Name & Category -->
+                <div class="form-section">
+                  <h3 class="section-title">1. Basic Produce Information</h3>
+                  
+                  <div class="form-group">
+                    <label for="prod-name">Produce Name *</label>
+                    <input 
+                      id="prod-name" 
+                      type="text" 
+                      [(ngModel)]="name" 
+                      placeholder="e.g. Kashmiri Royal Kesar Cherries, Baby Spinach" 
+                      class="form-input text-lg"
+                      required 
+                    />
+                    <span class="field-hint">Use a descriptive, fresh produce name that customers easily recognize.</span>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Produce Category *</label>
+                    <div class="category-pills-row">
+                      <button 
+                        type="button" 
+                        class="cat-pill" 
+                        [class.active]="category === 1"
+                        (click)="selectCategory(1)"
+                      >
+                        <span class="cat-icon">🍎</span>
+                        <span>Fresh Fruits</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        class="cat-pill" 
+                        [class.active]="category === 2"
+                        (click)="selectCategory(2)"
+                      >
+                        <span class="cat-icon">🥬</span>
+                        <span>Leafy Greens</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        class="cat-pill" 
+                        [class.active]="category === 3"
+                        (click)="selectCategory(3)"
+                      >
+                        <span class="cat-icon">🥕</span>
+                        <span>Daily Veggies</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Pricing & Units -->
+                <div class="form-section">
+                  <h3 class="section-title">2. Price in Indian Rupee (₹ INR) & Metric Units</h3>
+                  
+                  <div class="price-fields-row">
+                    <div class="form-group">
+                      <label for="prod-price">Selling Price (₹ INR) *</label>
+                      <div class="input-currency-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input 
+                          id="prod-price" 
+                          type="number" 
+                          [(ngModel)]="price" 
+                          placeholder="140" 
+                          class="form-input currency-input" 
+                          min="1"
+                          required 
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="prod-orig-price">Original MRP Price (Optional for Discount)</label>
+                      <div class="input-currency-wrapper">
+                        <span class="currency-symbol">₹</span>
+                        <input 
+                          id="prod-orig-price" 
+                          type="number" 
+                          [(ngModel)]="original_price" 
+                          placeholder="180" 
+                          class="form-input currency-input" 
+                          min="1"
+                        />
+                      </div>
+                      @if (previewDiscount() > 0) {
+                        <span class="discount-pill-preview">✨ {{ previewDiscount() }}% OFF discount badge will show</span>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Unit Chips -->
+                  <div class="form-group">
+                    <label>Package / Selling Unit *</label>
+                    <div class="chips-selector-row">
+                      @for (u of unitPresets; track u) {
+                        <button 
+                          type="button" 
+                          class="chip-btn" 
+                          [class.active]="unit === u"
+                          (click)="selectUnit(u)"
+                        >
+                          {{ u }}
+                        </button>
+                      }
+                    </div>
+                    <div class="custom-unit-row">
+                      <span class="custom-unit-label">Or custom unit:</span>
+                      <input 
+                        type="text" 
+                        [(ngModel)]="unit" 
+                        placeholder="e.g. 500g box or 1 bunch" 
+                        class="form-input inline-unit-input" 
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Stock Quantity -->
+                  <div class="form-group">
+                    <label for="prod-stock">Available Stock Units</label>
+                    <input 
+                      id="prod-stock" 
+                      type="number" 
+                      [(ngModel)]="stock_quantity" 
+                      class="form-input" 
+                      min="1" 
+                    />
+                    <span class="field-hint">Initial inventory available for immediate 2-hour dispatch.</span>
+                  </div>
+                </div>
+
+                <!-- 3. Quality & Certification Tags -->
+                <div class="form-section">
+                  <h3 class="section-title">3. Organic Certification & Freshness Badges</h3>
+                  
+                  <div class="form-group">
+                    <label>Freshness Tag (Highlights on Product Card)</label>
+                    <div class="chips-selector-row">
+                      @for (t of tagPresets; track t) {
+                        <button 
+                          type="button" 
+                          class="chip-btn" 
+                          [class.active]="freshness_tag === t"
+                          (click)="selectTag(t)"
+                        >
+                          {{ t }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="toggles-grid">
+                    <label class="toggle-card">
+                      <input type="checkbox" [(ngModel)]="is_organic" />
+                      <div class="toggle-content">
+                        <span class="toggle-title">🌱 100% Certified Organic</span>
+                        <span class="toggle-desc">Displays the green Organic certification badge</span>
+                      </div>
+                    </label>
+
+                    <label class="toggle-card">
+                      <input type="checkbox" [(ngModel)]="is_featured" />
+                      <div class="toggle-content">
+                        <span class="toggle-title">⭐ Feature on Homepage</span>
+                        <span class="toggle-desc">Highlights this item in top recommendations</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 4. Photo / Image Upload -->
+                <div class="form-section image-upload-section">
+                  <div class="section-title-header">
+                    <h3 class="section-title">4. Produce Photo</h3>
+                    <span class="section-badge-pill">📸 Direct File Upload</span>
+                  </div>
+
+                  <!-- Hidden Native File Input -->
+                  <input 
+                    #fileInput 
+                    type="file" 
+                    accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml" 
+                    (change)="onFileSelected($event)" 
+                    style="display: none;" 
+                  />
+
+                  <!-- Upload Dropzone & Display Area -->
+                  <div class="image-upload-wrapper">
+                    @if (image_url) {
+                      <!-- Uploaded Image Active Display Card -->
+                      <div class="uploaded-image-card">
+                        <div class="uploaded-thumb-wrap">
+                          <img [src]="image_url" [alt]="name || 'Uploaded produce image'" class="uploaded-thumb" />
+                          @if (isUploadingImage()) {
+                            <div class="upload-spinner-overlay">
+                              <span class="spinner-icon">⏳</span>
+                              <span>Uploading...</span>
+                            </div>
+                          }
+                        </div>
+
+                        <div class="uploaded-meta">
+                          <div class="file-name-row">
+                            <span class="file-icon">🖼️</span>
+                            <span class="file-name" [title]="uploadedFileName() || 'Produce Photo'">
+                              {{ uploadedFileName() || 'Selected Produce Photo' }}
+                            </span>
+                          </div>
+
+                          <div class="file-status-row">
+                            <span class="file-status-badge">
+                              <span class="badge-dot"></span>
+                              {{ isUploadingImage() ? 'Uploading to Server...' : 'Ready for Storefront' }}
+                            </span>
+                            @if (uploadedFileSize()) {
+                              <span class="file-size-tag">{{ uploadedFileSize() }}</span>
+                            }
+                          </div>
+
+                          <div class="uploaded-actions">
+                            <button 
+                              type="button" 
+                              class="btn-action-replace" 
+                              (click)="fileInput.click()"
+                              [disabled]="isUploadingImage()"
+                              title="Upload a different photo from your computer"
+                            >
+                              <span>📤 Replace Photo</span>
+                            </button>
+                            <button 
+                              type="button" 
+                              class="btn-action-remove" 
+                              (click)="removeImage(fileInput)"
+                              [disabled]="isUploadingImage()"
+                              title="Remove this photo"
+                            >
+                              <span>🗑️ Remove</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    } @else {
+                      <!-- Drag & Drop Dropzone Box -->
+                      <div 
+                        class="dropzone-box" 
+                        [class.is-dragover]="isDragOver()"
+                        (dragover)="onDragOver($event)"
+                        (dragleave)="onDragLeave($event)"
+                        (drop)="onFileDropped($event)"
+                        (click)="fileInput.click()"
+                        role="button"
+                        tabindex="0"
+                        (keydown.enter)="fileInput.click()"
+                        (keydown.space)="fileInput.click()"
+                      >
+                        <div class="dropzone-content">
+                          <div class="dropzone-icon-circle">
+                            <span class="dropzone-icon">📸</span>
+                          </div>
+                          <h4 class="dropzone-title">Upload Produce Photo</h4>
+                          <p class="dropzone-desc">
+                            Drag & drop your photo here, or <span class="browse-link">browse from your computer</span>
+                          </p>
+                          <span class="dropzone-hint">
+                            Supports PNG, JPG, JPEG, WEBP, or SVG (Up to 10MB)
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Optional Manual URL Toggle -->
+                  <div class="manual-url-toggle-wrap">
+                    <button 
+                      type="button" 
+                      class="btn-toggle-manual-url" 
+                      (click)="showManualUrlInput.set(!showManualUrlInput())"
+                    >
+                      <span>{{ showManualUrlInput() ? '▲ Hide URL input' : '🔗 Or paste an external image URL instead' }}</span>
+                    </button>
+
+                    @if (showManualUrlInput()) {
+                      <div class="manual-url-input-box">
+                        <input 
+                          id="prod-img" 
+                          type="text" 
+                          [(ngModel)]="image_url" 
+                          (ngModelChange)="onManualUrlChange($event)"
+                          placeholder="https://images.unsplash.com/photo-..." 
+                          class="form-input text-sm" 
+                        />
+                        <span class="field-hint">Paste an image link directly if you don't have a local image file.</span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Farm Photo Library Presets -->
+                  <div class="image-gallery-section">
+                    <label class="gallery-title">Or choose with 1-click from our Farm Photo Library:</label>
+                    <div class="image-presets-grid">
+                      @for (img of imagePresets; track img.title) {
+                        <div 
+                          class="image-preset-card" 
+                          [class.selected]="image_url === img.url"
+                          (click)="selectPresetImage(img.url, img.title)"
+                          title="Select {{ img.title }}"
+                        >
+                          <img [src]="img.url" [alt]="img.title" />
+                          <span class="preset-name">{{ img.title }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 5. Tagline & Description -->
+                <div class="form-section">
+                  <h3 class="section-title">5. Tagline & Tasting Notes</h3>
+                  
+                  <div class="form-group">
+                    <label for="prod-tagline">Short Tagline</label>
+                    <input 
+                      id="prod-tagline" 
+                      type="text" 
+                      [(ngModel)]="tagline" 
+                      placeholder="e.g. Golden sweet apricots direct from Ladakh" 
+                      class="form-input" 
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prod-desc">Detailed Description</label>
+                    <textarea 
+                      id="prod-desc" 
+                      [(ngModel)]="description" 
+                      rows="3" 
+                      placeholder="Describe the aroma, harvest origin, and culinary recommendations..."
+                      class="form-textarea"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-actions-bar">
+                  <button 
+                    type="button" 
+                    class="btn-publish-produce"
+                    (click)="publishProduct()"
+                    [disabled]="isPublishing()"
+                  >
+                    @if (isPublishing()) {
+                      <span class="spinner"></span>
+                      <span>Saving to Catalog...</span>
+                    } @else {
+                      <span class="publish-icon">🌿</span>
+                      <span>{{ isEditing() ? 'Save Produce Updates' : 'Publish Produce to Store Front' }}</span>
+                      <span class="publish-arrow">→</span>
+                    }
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- Live Customer Storefront Preview Panel -->
+              <div class="live-preview-panel">
+                <div class="preview-card-sticky">
+                  
+                  <div class="preview-header">
+                    <div class="pulse-dot"></div>
+                    <span class="preview-badge-title">Live Storefront Preview</span>
+                  </div>
+                  <p class="preview-explanation">This is the exact card shoppers will see in the catalog:</p>
+
+                  <!-- Simulated Real Product Card -->
+                  <div class="simulated-product-card">
+                    
+                    <div class="card-image-wrap">
+                      <img [src]="image_url || '/fruits/apples.jpg'" [alt]="name || 'Fresh Produce'" />
+                      
+                      @if (previewDiscount() > 0) {
+                        <div class="badge-discount">
+                          {{ previewDiscount() }}% OFF
+                        </div>
+                      }
+
+                      @if (is_organic) {
+                        <div class="badge-organic">
+                          🌱 100% Organic
+                        </div>
+                      }
+
+                      <div class="badge-freshness">
+                        {{ freshness_tag || 'Fresh Harvest' }}
+                      </div>
+                    </div>
+
+                    <div class="card-body">
+                      <div class="card-meta">
+                        <span class="card-category">
+                          {{ category === 1 ? 'Fresh Fruits' : category === 2 ? 'Leafy Greens' : 'Daily Veggies' }}
+                        </span>
+                        <span class="card-rating">⭐ 4.9 (New)</span>
+                      </div>
+
+                      <h4 class="card-title">{{ name || 'Your Produce Name' }}</h4>
+                      <p class="card-tagline">{{ tagline || 'Farm-fresh harvest delivered at peak flavor.' }}</p>
+
+                      <div class="card-footer">
+                        <div class="price-box">
+                          <span class="unit-text">{{ unit || '1 kg' }}</span>
+                          <div class="price-row">
+                            <span class="current-price">₹{{ price || 0 }}</span>
+                            @if (original_price && original_price > (price || 0)) {
+                              <span class="strikethrough-price">₹{{ original_price }}</span>
+                            }
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn-mock-add">
+                          <span>+ Add</span>
+                        </button>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <div class="preview-trust-notice">
+                    <span>✓ Ready for immediate 2-hour express delivery dispatch</span>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        }
+
+        <!-- TAB 2: INVENTORY & PRODUCE CATALOG -->
+        @if (activeTab() === 'inventory') {
+          <div class="tab-content inventory-view">
+            
+            <div class="inventory-header-row">
+              <div>
+                <h1 class="page-title">Produce Catalog & Inventory</h1>
+                <p class="page-subtitle">Manage prices, adjust stock levels, or remove items from the live catalog.</p>
+              </div>
+
+              <button type="button" class="btn-add-from-inv" (click)="activeTab.set('add')">
+                <span>➕ Add New Produce</span>
+              </button>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="inventory-controls-bar">
+              <div class="search-box-wrapper">
+                <span class="search-icon">🔍</span>
+                <input 
+                  type="text" 
+                  [(ngModel)]="searchTerm" 
+                  placeholder="Search by produce name or tag..." 
+                  class="inventory-search-input"
+                />
+              </div>
+
+              <div class="category-select-wrapper">
+                <select [(ngModel)]="inventoryCategoryFilter" class="inventory-category-select">
+                  <option value="all">All Categories</option>
+                  <option value="fruits">Fresh Fruits</option>
+                  <option value="greens">Leafy Greens</option>
+                  <option value="veggies">Daily Veggies</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="table-responsive">
+              <table class="inventory-table">
+                <thead>
+                  <tr>
+                    <th>Produce</th>
+                    <th>Category</th>
+                    <th>Price (₹ INR)</th>
+                    <th>Unit</th>
+                    <th>Stock Units</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (prod of filteredProducts(); track prod.id) {
+                    <tr>
+                      <td class="produce-cell">
+                        <img [src]="prod.image_url" [alt]="prod.name" class="table-thumb" />
+                        <div>
+                          <strong class="produce-name">{{ prod.name }}</strong>
+                          <span class="produce-tag-sub">{{ prod.freshness_tag }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="table-cat-badge">{{ prod.category_name || 'Produce' }}</span>
+                      </td>
+                      <td>
+                        <span class="table-price">₹{{ prod.price }}</span>
+                        @if (prod.original_price && prod.original_price > prod.price) {
+                          <span class="table-mrp">₹{{ prod.original_price }}</span>
+                        }
+                      </td>
+                      <td>{{ prod.unit }}</td>
+                      <td>
+                        <div class="stock-adjust-cell">
+                          <button type="button" class="btn-stock-qty" (click)="quickAdjustStock(prod, -5)" title="Decrease 5">-</button>
+                          <span class="stock-number" [class.low-stock]="prod.stock_quantity < 10">{{ prod.stock_quantity }}</span>
+                          <button type="button" class="btn-stock-qty" (click)="quickAdjustStock(prod, 10)" title="Add 10">+</button>
+                        </div>
+                      </td>
+                      <td>
+                        @if (prod.stock_quantity > 0) {
+                          <span class="status-badge active">In Stock</span>
+                        } @else {
+                          <span class="status-badge out">Out of Stock</span>
+                        }
+                      </td>
+                      <td class="actions-cell">
+                        <button type="button" class="btn-action-edit" (click)="editProduct(prod)" title="Edit this item">
+                          ✏️ Edit
+                        </button>
+                        <button type="button" class="btn-action-delete" (click)="deleteProduct(prod)" title="Delete from store">
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="7" class="empty-table-msg">
+                        No produce found matching your search.
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        }
+
+        <!-- TAB 3: CUSTOMER ORDERS -->
+        @if (activeTab() === 'orders') {
+          <div class="tab-content orders-view">
+            
+            <div class="inventory-header-row">
+              <div>
+                <h1 class="page-title">Live Customer Orders</h1>
+                <p class="page-subtitle">Track incoming customer orders, dispatch slots, and delivery addresses.</p>
+              </div>
+            </div>
+
+            <div class="orders-grid">
+              @for (ord of orders(); track ord.id) {
+                <div class="order-card">
+                  <div class="order-card-header">
+                    <div>
+                      <span class="order-number-text">{{ ord.order_number }}</span>
+                      <span class="order-time-text">{{ ord.created_at | date:'medium' }}</span>
+                    </div>
+                    <span class="order-status-pill status-{{ ord.status.toLowerCase() }}">
+                      {{ ord.status }}
+                    </span>
+                  </div>
+
+                  <div class="customer-info-box">
+                    <strong>{{ ord.customer_name }}</strong>
+                    <span>📞 {{ ord.customer_phone }}</span>
+                    <span>📍 {{ ord.delivery_address }}</span>
+                    <span class="delivery-slot-badge">⏰ {{ ord.delivery_slot }}</span>
+                  </div>
+
+                  <div class="order-items-list">
+                    <span class="items-title">Items Ordered:</span>
+                    @for (it of ord.items; track it.id) {
+                      <div class="order-item-row">
+                        <span>{{ it.product_name }} ({{ it.product_unit }}) x {{ it.quantity }}</span>
+                        <strong>₹{{ it.item_total }}</strong>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="order-total-bar">
+                    <span>Payment: <strong>{{ ord.payment_method }}</strong></span>
+                    <span class="total-amount-display">Total: ₹{{ ord.total_amount }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-orders-msg">
+                  <p>No customer orders placed yet. As shoppers place orders, they will appear here live!</p>
+                </div>
+              }
+            </div>
+
+          </div>
+        }
+
+      }
+
+    </div>
+  </main>
+
+</div>
