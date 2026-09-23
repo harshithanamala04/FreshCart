@@ -4,17 +4,37 @@
 
 ---
 
+## 📸 Screenshots & UI Preview
+
+### 🌿 Landing Page & Hero Section
+*Editorial aesthetic with live produce highlights, direct-from-farm guarantees, location selection, and instant search.*
+
+![FreshCart Landing Page](screenshots/landing_page.png)
+
+### 🧺 Harvest Selection & Produce Catalog
+*Interactive produce catalog featuring dynamic category filters, freshness badges, ratings, stock indicators, and instant cart additions in ₹ INR.*
+
+![FreshCart Harvest Selection](screenshots/dashboard.png)
+
+### 🔐 Customer Sign-In & Authentication Modal
+*Clean, responsive modal for user login and account creation with quick farm access guarantees.*
+
+![FreshCart Sign-In Modal](screenshots/login.png)
+
+---
+
 ## 📋 Table of Contents
-1. [Architectural Overview](#-architectural-overview)
-2. [Design System & Botanical Pastel Theme](#-design-system--botanical-pastel-theme)
-3. [Technology Stack](#-technology-stack)
-4. [Project Structure](#-project-structure)
-5. [Prerequisites](#-prerequisites)
-6. [Backend Setup (Django & PostgreSQL)](#-backend-setup-django--postgresql)
-7. [Frontend Setup (Angular 18+ Standalone)](#-frontend-setup-angular-18-standalone)
-8. [Database Schema & Models](#-database-schema--models)
-9. [REST API Endpoints & Testing](#-rest-api-endpoints--testing)
-10. [Angular Signals & Cart Architecture](#-angular-signals--cart-architecture)
+1. [📸 Screenshots & UI Preview](#-screenshots--ui-preview)
+2. [Architectural Overview](#-architectural-overview)
+3. [Design System & Botanical Pastel Theme](#-design-system--botanical-pastel-theme)
+4. [Technology Stack](#-technology-stack)
+5. [Project Structure](#-project-structure)
+6. [Prerequisites](#-prerequisites)
+7. [Backend Setup (Django & PostgreSQL)](#-backend-setup-django--postgresql)
+8. [Frontend Setup (Angular 18+ Standalone)](#-frontend-setup-angular-18-standalone)
+9. [Database Schema & Models](#-database-schema--models)
+10. [REST API Endpoints & Testing](#-rest-api-endpoints--testing)
+11. [Angular Signals & Cart Architecture](#-angular-signals--cart-architecture)
 
 ---
 
@@ -132,6 +152,10 @@ FreshCart/
 │   ├── package.json
 │   ├── angular.json
 │   └── tsconfig.json
+├── screenshots/
+│   ├── landing_page.png          # Hero banner & navigation showcase
+│   ├── dashboard.png             # Produce catalog & dynamic category filters
+│   └── login.png                 # Member authentication modal
 └── README.md
 ```
 

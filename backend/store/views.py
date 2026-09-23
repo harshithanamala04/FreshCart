@@ -2,9 +2,13 @@
 API ViewSets for FreshCart.
 """
 
+import os
+import uuid
+from django.conf import settings
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from .models import Category, Product, Order
@@ -80,3 +84,46 @@ class OrderViewSet(viewsets.ModelViewSet):
                 {"error": f"Order with reference '{order_number}' not found."},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+@parser_classes([MultiPartParser, FormParser])
+def upload_image_view(request):
+    """
+    API endpoint to upload produce images.
+    Saves file into MEDIA_ROOT/products/ and returns absolute & relative URLs.
+    """
+    upload_file = request.FILES.get('image') or request.FILES.get('file')
+    if not upload_file:
+        return Response({'error': 'No image file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    ext = os.path.splitext(upload_file.name)[1].lower()
+    allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg']
+    if ext not in allowed_extensions:
+        return Response(
+            {'error': f'Invalid file format ({ext}). Supported formats: JPG, PNG, WEBP, GIF, SVG.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    products_media_dir = os.path.join(settings.MEDIA_ROOT, 'products')
+    os.makedirs(products_media_dir, exist_ok=True)
+
+    base_name = os.path.splitext(os.path.basename(upload_file.name))[0]
+    safe_base = "".join(c for c in base_name if c.isalnum() or c in ('-', '_')).rstrip()[:30] or 'produce'
+    unique_name = f"{safe_base}_{uuid.uuid4().hex[:8]}{ext}"
+    file_path = os.path.join(products_media_dir, unique_name)
+
+    with open(file_path, 'wb+') as destination:
+        for chunk in upload_file.chunks():
+            destination.write(chunk)
+
+    relative_url = f"{settings.MEDIA_URL}products/{unique_name}"
+    absolute_url = request.build_absolute_uri(relative_url)
+
+    return Response({
+        'url': absolute_url,
+        'relative_url': relative_url,
+        'filename': unique_name,
+    }, status=status.HTTP_201_CREATED)
+

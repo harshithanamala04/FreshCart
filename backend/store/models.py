@@ -45,7 +45,7 @@ class Product(models.Model):
     stock_quantity = models.PositiveIntegerField(default=50)
     freshness_tag = models.CharField(max_length=100, default='Fresh Harvest', help_text="e.g. 'Just Harvested', 'GI Tagged', 'Pesticide Free'")
     is_organic = models.BooleanField(default=True)
-    image_url = models.URLField(max_length=500, help_text="High-resolution image URL")
+    image_url = models.CharField(max_length=2000, blank=True, default='/fruits/apples.jpg', help_text="High-resolution image URL or uploaded image path")
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.8)
     review_count = models.PositiveIntegerField(default=128)
     is_featured = models.BooleanField(default=False)
