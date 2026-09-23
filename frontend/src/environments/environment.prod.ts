@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8000/api',
+  apiUrl: 'https://freshcart-backend-3igg.onrender.com/api',
   firebase: {
     apiKey: "AIzaSyB2jycVY1bF_amQqJmKXWtp9FNS7K7PTTM",
     authDomain: "freshcart-3b848.firebaseapp.com",

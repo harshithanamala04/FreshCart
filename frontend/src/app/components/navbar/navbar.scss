@@ -371,3 +371,86 @@
     }
   }
 }
+
+@media (max-width: 767px) {
+  .navbar-main .navbar-container {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .brand-block .brand-logo-img {
+    height: 2.25rem;
+    max-width: 125px;
+  }
+
+  .search-container {
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 100%;
+    margin-top: 4px;
+
+    .search-input-wrapper {
+      padding: 0 12px;
+
+      .search-input {
+        height: 38px;
+        font-size: 0.82rem;
+      }
+    }
+  }
+
+  .navbar-actions {
+    gap: 8px;
+
+    .btn-signin {
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      gap: 4px;
+    }
+
+    .cart-trigger-block .basket-btn {
+      padding: 6px 12px 6px 8px;
+      gap: 8px;
+
+      .basket-icon-box {
+        width: 32px;
+        height: 32px;
+
+        .basket-svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      .basket-text-group {
+        .basket-label {
+          display: none;
+        }
+
+        .basket-amount {
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .user-chip {
+      padding: 4px 8px 4px 4px;
+
+      .user-name {
+        max-width: 65px;
+        font-size: 0.78rem;
+      }
+    }
+
+    .btn-logout {
+      padding: 4px 8px;
+      font-size: 0.72rem;
+    }
+
+    .btn-farm-admin {
+      padding: 5px 8px;
+      font-size: 0.72rem;
+    }
+  }
+}

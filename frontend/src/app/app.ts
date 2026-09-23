@@ -49,15 +49,19 @@ export class App implements OnInit {
     checkHash();
     if (typeof window !== 'undefined') {
       window.addEventListener('hashchange', checkHash);
-    }
 
-    // If visitor is unauthenticated on storefront, gently prompt the auth modal
-    if (!this.authService.isLoggedIn() && this.currentView() === 'store') {
-      setTimeout(() => {
-        if (!this.authService.isLoggedIn() && this.currentView() === 'store') {
-          this.authService.openAuthModal();
+      // When a user visits our site for the 1st time, prompt them to sign up to view all products
+      if (!this.authService.isLoggedIn()) {
+        const hasPrompted = sessionStorage.getItem('freshcart_welcome_prompted');
+        if (!hasPrompted && this.currentView() === 'store') {
+          sessionStorage.setItem('freshcart_welcome_prompted', 'true');
+          setTimeout(() => {
+            if (!this.authService.isLoggedIn() && this.currentView() === 'store') {
+              this.authService.openAuthModal('register');
+            }
+          }, 800);
         }
-      }, 700);
+      }
     }
   }
 

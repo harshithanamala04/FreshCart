@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { CartService } from '../../services/cart.service';
@@ -14,7 +14,7 @@ import { CategoryFilterComponent } from '../category-filter/category-filter';
   templateUrl: './product-grid.html',
   styleUrl: './product-grid.scss',
 })
-export class ProductGridComponent {
+export class ProductGridComponent implements OnInit {
   apiService = inject(ApiService);
   cartService = inject(CartService);
   authService = inject(AuthService);
@@ -54,18 +54,17 @@ export class ProductGridComponent {
   });
 
   constructor() {
-    // Re-fetch products when user auth state changes
+    // Re-fetch products when user auth state changes (e.g. login/logout)
     effect(() => {
-      const isAuthed = this.authService.isLoggedIn();
+      this.authService.isLoggedIn();
       untracked(() => {
-        if (isAuthed) {
-          this.loadProducts();
-        } else {
-          this.allProducts.set([]);
-          this.isLoading.set(false);
-        }
+        this.loadProducts();
       });
     });
+  }
+
+  ngOnInit(): void {
+    this.loadProducts();
   }
 
   loadProducts(): void {

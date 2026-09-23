@@ -48,10 +48,17 @@
       <!-- Empty State -->
       <div class="empty-state-box animate-scale-up">
         <div class="empty-icon">🥬</div>
-        <h3 class="empty-title">No produce matches your search</h3>
-        <p class="empty-desc">
-          We couldn't find any items matching "{{ cartService.searchQuery() }}". Try searching for 'apples', 'spinach', or clear your search filter.
-        </p>
+        @if (cartService.searchQuery().trim()) {
+          <h3 class="empty-title">No produce matches your search</h3>
+          <p class="empty-desc">
+            We couldn't find any items matching "{{ cartService.searchQuery() }}". Try searching for 'apples', 'spinach', or clear your search filter.
+          </p>
+        } @else {
+          <h3 class="empty-title">No produce in this category yet</h3>
+          <p class="empty-desc">
+            All fresh harvest items will appear here once harvested. Explore our other daily farm produce!
+          </p>
+        }
         <button 
           type="button" 
           class="btn-primary" 

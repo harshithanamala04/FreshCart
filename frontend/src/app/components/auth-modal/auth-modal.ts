@@ -90,8 +90,11 @@ export class AuthModalComponent {
       error: (err) => {
         this.isGoogleSubmitting.set(false);
         if (err?.code === 'auth/popup-blocked') {
-          this.errorMessage.set('Google popup was blocked by your browser. Please enter your email directly below.');
+          this.errorMessage.set('Google popup was blocked by your browser. You can enter your email directly below.');
+          this.openGoogleFlow();
           this.showAddGoogleForm.set(true);
+        } else if (err?.code === 'auth/popup-closed-by-user') {
+          this.errorMessage.set('Google sign-in was closed before completing.');
         } else {
           this.errorMessage.set(this.formatErrorMessage(err));
         }

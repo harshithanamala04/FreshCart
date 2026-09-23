@@ -7,17 +7,17 @@
 ## 📸 Screenshots & UI Preview
 
 ### 🌿 Landing Page & Hero Section
-*Editorial aesthetic with live produce highlights, direct-from-farm guarantees, location selection, and instant search.*
+*Editorial botanical aesthetic featuring the sliding produce carousel, direct-from-farm guarantees, location selection, and the quick-access **MY BASKET** button.*
 
 ![FreshCart Landing Page](screenshots/landing_page.png)
 
-### 🧺 Harvest Selection & Produce Catalog
-*Interactive produce catalog featuring dynamic category filters, freshness badges, ratings, stock indicators, and instant cart additions in ₹ INR.*
+### 🧺 Harvest Selection & Produce Catalog (Member Unlocked)
+*Full 93-produce dawn harvest catalog featuring dynamic category filters (46 Fruits, 12 Leafy Greens, 35 Daily Veggies), freshness tags, ₹ INR pricing, ratings, and instant cart steppers.*
 
 ![FreshCart Harvest Selection](screenshots/dashboard.png)
 
-### 🔐 Customer Sign-In & Authentication Modal
-*Clean, responsive modal for user login and account creation with quick farm access guarantees.*
+### 🔐 1st-Time Visitor Sign-Up & Google 1-Click Authentication
+*Clean modal featuring instant 1-Click Google Account Chooser (`select_account`), Email/Password registration, and quick membership access to unlock all 93 organic farm products.*
 
 ![FreshCart Sign-In Modal](screenshots/login.png)
 
@@ -25,16 +25,44 @@
 
 ## 📋 Table of Contents
 1. [📸 Screenshots & UI Preview](#-screenshots--ui-preview)
-2. [Architectural Overview](#-architectural-overview)
-3. [Design System & Botanical Pastel Theme](#-design-system--botanical-pastel-theme)
-4. [Technology Stack](#-technology-stack)
-5. [Project Structure](#-project-structure)
-6. [Prerequisites](#-prerequisites)
-7. [Backend Setup (Django & PostgreSQL)](#-backend-setup-django--postgresql)
-8. [Frontend Setup (Angular 18+ Standalone)](#-frontend-setup-angular-18-standalone)
-9. [Database Schema & Models](#-database-schema--models)
-10. [REST API Endpoints & Testing](#-rest-api-endpoints--testing)
-11. [Angular Signals & Cart Architecture](#-angular-signals--cart-architecture)
+2. [✨ Key Features & User Flow](#-key-features--user-flow)
+3. [🏛️ Architectural Overview](#-architectural-overview)
+4. [🎨 Design System & Botanical Pastel Theme](#-design-system--botanical-pastel-theme)
+5. [🛠️ Technology Stack](#-technology-stack)
+6. [📂 Project Structure](#-project-structure)
+7. [⚡ Prerequisites](#-prerequisites)
+8. [🚀 Backend Setup (Django & PostgreSQL / Supabase)](#-backend-setup-django--postgresql--supabase)
+9. [🅰️ Frontend Setup (Angular 18+ Standalone)](#-frontend-setup-angular-18-standalone)
+10. [🔐 Authentication & Member Flow](#-authentication--member-flow)
+11. [📊 Database Schema & Seed Data (93 Items)](#-database-schema--seed-data-93-items)
+12. [🌐 REST API Endpoints](#-rest-api-endpoints)
+13. [💡 Angular Signals & Cart Architecture](#-angular-signals--cart-architecture)
+
+---
+
+## ✨ Key Features & User Flow
+
+- **1st-Time Visitor Sign-Up Requirement**:
+  - When visiting FreshCart for the 1st time, users are invited to create an account or sign in to unlock and view the full 93-item dawn harvest catalog.
+  - The landing page features a **Private Farm Gate** section explaining wholesale farm pricing, zero-chemical guarantees, and direct farmer sourcing.
+  - Visitors can immediately sign up via standard **Email/Password** or native **1-Click Google Sign-In**.
+  - Once signed up/signed in, all 93 organic produce items unlock instantly with real-time category filtering and search.
+- **Conditional "MY BASKET" Visibility (Authenticated Members)**:
+  - "My Basket" is kept hidden on the initial landing page for unauthenticated visitors to maintain a focused, minimal onboarding experience.
+  - The moment a user registers or logs in, the **MY BASKET** button becomes visible in the top navigation header.
+  - Displays real-time item count badges and live subtotal in Indian Rupees (`₹ INR`) as items are added from the catalog.
+- **93 Authentic Organic Produce Items**:
+  - **46 Fresh Fruits** (Apples, Ratnagiri Alphonso Mangoes, Sweet Strawberries, Apricots, Avocados, etc.)
+  - **12 Leafy Greens** (Ooty Baby Spinach, Methi/Fenugreek, Hydroponic Coriander, Mint, Mustard Greens, etc.)
+  - **35 Daily Veggies** (Desi Tomatoes, Sweet Potatoes, Nagpur Carrots, Green Peas, Broccoli, Sweet Corn, etc.)
+- **Local Public Folder Assets with 2-Tier Fallback**:
+  - All product images are served directly from Angular's `public/` directory (`/fruits/`, `/greens/`, `/veggies/`, `/logo.jpg`).
+  - Circular containers include `(error)="onImageError($event)"` with a 2-tier fallback (`/logo.jpg` → dynamically generated SVG badge) so images never appear blank.
+- **Supabase Cloud Database & PostgreSQL Support**:
+  - Built-in `dj-database-url` integration enables seamless one-variable switching between local PostgreSQL and remote Supabase PostgreSQL via `DATABASE_URL`.
+- **Farm Manager Admin Portal**:
+  - Full CRUD operations: Create, update, delete produce, upload images, and manage customer orders.
+  - Separate dedicated admin view with storefront preview toggle.
 
 ---
 
@@ -42,32 +70,31 @@
 
 FreshCart employs a decoupled, production-ready micro-monorepo architecture:
 
-- **Frontend (`:4200`)**: Angular (v18+) with standalone components, native Angular Signals reactivity, and custom SCSS design system.
-- **Backend (`:8000`)**: Django 5.x with Django REST Framework (DRF), `django-cors-headers`, and `psycopg2`.
-- **Database**: PostgreSQL (`freshcart_db`) running on port `5432` with transactional order placement and automatic stock deduction.
-- **Localization**: Indian Rupee (`₹ INR`) currency formatting throughout, Indian produce varieties (e.g., *Shimla Royal Apples, Ratnagiri Alphonso Mangoes, Hydroponic Palak, Nashik Pink Onions, Nagpur Sweet Oranges, Kodaikanal Avocados*), and Indian delivery slot windows (Dawn Harvest 6-9 AM, Express 2-hour, Evening 5-8 PM).
+- **Frontend (`:4200`)**: Angular 18+ with standalone components, native Angular Signals reactivity, Firebase Authentication, and custom botanical SCSS design system.
+- **Backend (`:8000`)**: Django 5.x with Django REST Framework (DRF), `django-cors-headers`, `dj-database-url`, and `SafeTokenAuthentication`.
+- **Database**: PostgreSQL (local `freshcart_db` or cloud-hosted Supabase PostgreSQL).
+- **Localization**: Indian Rupee (`₹ INR`) currency formatting throughout, Indian organic produce varieties, and metro delivery slots.
 
 ```
    ┌────────────────────────────────┐         REST JSON API
    │   Angular 18+ Frontend         │ ◄──────────────────────────► ┌──────────────────────────────┐
    │   • Standalone Components      │     http://localhost:8000/   │   Django 5 REST Backend      │
    │   • Angular Signals (Cart)     │                              │   • DRF ModelViewSets        │
-   │   • Botanical Pastel System    │                              │   • Stock Deductions (Atomic)│
-   └────────────────────────────────┘                              │   • Seed Data (14 items)     │
-                                                                   └──────────────┬───────────────┘
-                                                                                  │ psycopg2
+   │   • Firebase 1-Click Auth      │                              │   • SafeTokenAuthentication  │
+   │   • Botanical Pastel System    │                              │   • dj-database-url Support  │
+   └────────────────────────────────┘                              └──────────────┬───────────────┘
+                                                                                  │ psycopg2 / SSL
                                                                                   ▼
                                                                    ┌──────────────────────────────┐
-                                                                   │   PostgreSQL 18 Database     │
-                                                                   │   DB: freshcart_db           │
+                                                                   │   PostgreSQL / Supabase      │
+                                                                   │   • 93 Produce Items         │
+                                                                   │   • 3 Categories             │
                                                                    └──────────────────────────────┘
 ```
 
 ---
 
 ## 🎨 Design System & Botanical Pastel Theme
-
-FreshCart is built around a calming, editorial aesthetic inspired by morning dew on organic farm leaves:
 
 | Token / Layer | Hex Value | Role & Usage |
 | :--- | :--- | :--- |
@@ -87,15 +114,15 @@ FreshCart is built around a calming, editorial aesthetic inspired by morning dew
 
 - **Frontend**:
   - Angular 18+ (Standalone Components, Signals, `computed`, `effect`)
-  - SCSS / Vanilla CSS Custom Design Tokens
-  - Modern Web APIs (`@keyframes`, backdrop blur, CSS grid, touch-friendly scroll)
+  - Firebase Authentication (`signInWithPopup`, `GoogleAuthProvider`, `onAuthStateChanged`)
+  - SCSS Design Tokens & Responsive Grid
 - **Backend**:
-  - Python 3.12+ & Django 5.x / 6.x
-  - Django REST Framework (DRF) 3.14+
-  - `django-cors-headers` (configured for `:4200`)
-  - `django-filter` for category & search filters
+  - Python 3.12+ & Django 5.x
+  - Django REST Framework (DRF)
+  - `django-cors-headers` & `django-filter`
+  - `dj-database-url` for Supabase PostgreSQL
 - **Database**:
-  - PostgreSQL with `psycopg2-binary`
+  - PostgreSQL 14+ / Supabase Cloud PostgreSQL
 
 ---
 
@@ -105,57 +132,46 @@ FreshCart is built around a calming, editorial aesthetic inspired by morning dew
 FreshCart/
 ├── backend/
 │   ├── freshcart_core/
-│   │   ├── __init__.py
-│   │   ├── settings.py           # PostgreSQL DB, CORS, DRF, & static/media settings
-│   │   ├── urls.py               # Main URL router
-│   │   ├── wsgi.py
-│   │   └── asgi.py
+│   │   ├── settings.py           # DB (Postgres/Supabase), CORS, DRF, & SafeTokenAuth
+│   │   ├── urls.py               # API route definitions
+│   │   └── wsgi.py / asgi.py
 │   ├── store/
-│   │   ├── __init__.py
-│   │   ├── apps.py
+│   │   ├── authentication.py     # SafeTokenAuthentication (graceful fallback)
 │   │   ├── models.py             # Category, Product, Order, OrderItem
-│   │   ├── serializers.py        # Nested & transactional DRF serializers
+│   │   ├── serializers.py        # DRF serializers
 │   │   ├── views.py              # CategoryViewSet, ProductViewSet, OrderViewSet
-│   │   ├── urls.py               # DefaultRouter endpoints
-│   │   ├── admin.py              # Django Admin with inlines & search
+│   │   ├── auth_views.py         # Django DRF token auth endpoints
 │   │   └── management/
 │   │       └── commands/
-│   │           └── seed_data.py  # 14 authentic Indian organic produce items
+│   │           └── seed_data.py  # Populates 93 items across 3 categories
 │   ├── manage.py
-│   ├── requirements.txt
-│   ├── .env                      # Local environment variables
-│   └── .env.example
+│   └── requirements.txt
 ├── frontend/
+│   ├── public/                   # Local static assets served at root /
+│   │   ├── fruits/               # 46 fruit images
+│   │   ├── greens/               # 12 leafy green images
+│   │   ├── veggies/              # 35 daily vegetable images
+│   │   └── logo.jpg              # Brand storefront logo & fallback
 │   ├── src/
-│   │   ├── index.html            # Google Fonts (Playfair Display & Plus Jakarta Sans)
-│   │   ├── styles.scss           # Global botanical pastel design system tokens
-│   │   ├── main.ts               # Standalone bootstrap with provideHttpClient()
+│   │   ├── environments/         # environment.ts & environment.prod.ts
+│   │   ├── styles.scss           # Global botanical theme & viewport confinement
 │   │   └── app/
-│   │       ├── app.ts / .html / .scss  # Shell layout, footer & toast alerts
-│   │       ├── models/
-│   │       │   ├── category.model.ts
-│   │       │   ├── product.model.ts
-│   │       │   ├── order.model.ts
-│   │       │   └── cart.model.ts
+│   │       ├── app.ts / .html    # Shell, membership gate & "MY BASKET" bindings
 │   │       ├── services/
-│   │       │   ├── api.service.ts      # DRF API integration with graceful fallback
-│   │       │   └── cart.service.ts     # Angular Signals reactive cart & delivery meter
+│   │       │   ├── api.service.ts    # Centralized HTTP API & fallbacks
+│   │       │   ├── auth.service.ts   # Firebase Auth & Signals state
+│   │       │   └── cart.service.ts   # Reactive cart & ₹299 free delivery meter
 │   │       └── components/
-│   │           ├── navbar/             # Logo, location picker, search, basket trigger
-│   │           ├── hero-banner/        # Guarantees, dawn harvest badge, pillars
-│   │           ├── category-filter/    # Scrollable pill filters
-│   │           ├── product-card/       # Image lock, ₹ pricing, strikethrough, steppers
-│   │           ├── product-grid/       # Responsive grid with sorting & empty states
-│   │           ├── cart-drawer/        # Slide-over cart, free delivery progress, slots
-│   │           ├── checkout-modal/     # Multi-step checkout, slot & UPI/COD selectors
-│   │           └── order-success-modal/# Order confirmation with unique FC-2026 reference
+│   │           ├── navbar/           # Header with prominent "MY BASKET ₹0" button
+│   │           ├── hero-banner/      # Carousel, Explore CTA & Hero Basket button
+│   │           ├── product-grid/     # 93-item grid, filters, sorting & error fallbacks
+│   │           ├── product-card/     # Image fallback, steppers, BIO tag
+│   │           ├── cart-drawer/      # Slide-over cart, delivery progress meter
+│   │           ├── checkout-modal/   # Guest & member checkout with slots
+│   │           ├── auth-modal/       # 1-Click Google chooser & sign-up tabs
+│   │           └── admin-portal/     # Full CRUD management
 │   ├── package.json
-│   ├── angular.json
-│   └── tsconfig.json
-├── screenshots/
-│   ├── landing_page.png          # Hero banner & navigation showcase
-│   ├── dashboard.png             # Produce catalog & dynamic category filters
-│   └── login.png                 # Member authentication modal
+│   └── angular.json
 └── README.md
 ```
 
@@ -163,69 +179,52 @@ FreshCart/
 
 ## ⚡ Prerequisites
 
-- **Node.js**: v18+ (tested with v24) & npm
-- **Python**: 3.10+ (tested with 3.12)
-- **PostgreSQL**: 14+ (installed and running on port 5432)
+- **Node.js**: v18+ & npm
+- **Python**: 3.10+
+- **PostgreSQL**: Local 14+ or Supabase Cloud instance
 
 ---
 
-## 🚀 Backend Setup (Django & PostgreSQL)
+## 🚀 Backend Setup (Django & PostgreSQL / Supabase)
 
-### 1. Create PostgreSQL Database
-Ensure your PostgreSQL server is running. Create the `freshcart_db` database:
-
-**Using psql:**
-```bash
-psql -U postgres -c "CREATE DATABASE freshcart_db;"
-```
-
-**Or using Python:**
-```python
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-
-conn = psycopg2.connect(dbname='postgres', user='postgres', password='YOUR_PASSWORD', host='localhost', port=5432)
-conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-cur = conn.cursor()
-cur.execute("CREATE DATABASE freshcart_db;")
-cur.close()
-conn.close()
-```
-
-### 2. Configure Environment
-In `backend/.env`, verify or update your database credentials:
+### 1. Configure Environment
+In `backend/.env`:
 ```env
 DEBUG=True
 SECRET_KEY=django-insecure-freshcart-organic-super-secret-key-2026-prod
+
+# Option A: Local PostgreSQL
 DB_NAME=freshcart_db
 DB_USER=postgres
 DB_PASSWORD=root
 DB_HOST=localhost
 DB_PORT=5432
+
+# Option B: Supabase Cloud PostgreSQL (Uncomment to use Supabase)
+# DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@[YOUR-PROJECT-REF].supabase.co:5432/postgres
+
 CORS_ALLOWED_ORIGINS=http://localhost:4200,http://127.0.0.1:4200
 ```
 
-### 3. Install Dependencies & Run Migrations
+### 2. Install Dependencies & Run Migrations
 ```bash
 cd backend
 python -m pip install -r requirements.txt
-python manage.py makemigrations store
 python manage.py migrate
 ```
 
-### 4. Seed Indian Farm-Fresh Produce Data
-Populate the database with authentic Indian organic produce:
+### 3. Seed 93 Farm-Fresh Produce Items
 ```bash
 python manage.py seed_data
 ```
-*Output: Seeds 4 categories ("Fresh Fruits", "Leafy Greens", "Daily Veggies", "Exotic & Gourmet") and 14 authentic items.*
+*Output: Successfully seeds 3 categories (Fresh Fruits, Leafy Greens, Daily Veggies) and all 93 produce items with local public image paths.*
 
-### 5. Start the Django Server
+### 4. Start the Django Server
 ```bash
 python manage.py runserver 127.0.0.1:8000
 ```
-Backend API will be accessible at: `http://127.0.0.1:8000/api/`
-Django Admin: `http://127.0.0.1:8000/admin/`
+- API Base URL: `http://127.0.0.1:8000/api/`
+- Django Admin: `http://127.0.0.1:8000/admin/`
 
 ---
 
@@ -240,100 +239,75 @@ npm install
 ### 2. Start Angular Development Server
 ```bash
 npm start
-# or: npx ng serve --port 4200
+# Server runs on http://localhost:4200/
 ```
-
-### 3. Open in Browser
-Navigate to `http://localhost:4200/`
 
 ---
 
-## 📊 Database Schema & Models
+## 🔐 Authentication & Member Flow
 
-### `Category`
-- `name`: CharField (e.g., "Fresh Fruits", "Leafy Greens")
-- `slug`: SlugField (unique, e.g., `fruits`, `greens`, `veggies`, `exotic`)
-- `icon`: CharField (e.g. `🍎`, `🥬`, `🥕`, `🥑`)
-- `display_order`: PositiveIntegerField
-
-### `Product`
-- `category`: ForeignKey to `Category`
-- `name`: CharField (e.g., "Ratnagiri Alphonso Mangoes (Hapus)")
-- `tagline`: CharField (e.g., "Naturally ripened GI-tagged authentic Alphonso mangoes")
-- `description`: TextField
-- `price`: DecimalField (`₹ INR`, e.g. `799.00`)
-- `original_price`: DecimalField (e.g. `999.00` for strikethrough discount)
-- `unit`: CharField (e.g., `1 kg`, `250g bunch`, `6 pcs box`)
-- `stock_quantity`: PositiveIntegerField
-- `freshness_tag`: CharField (e.g. `Just Harvested`, `GI Tagged GI-12`, `Pesticide Free`)
-- `is_organic`: BooleanField (`True`)
-- `image_url`: URLField
-- `rating`: DecimalField (e.g. `4.9`)
-- `review_count`: PositiveIntegerField
-- `is_featured`: BooleanField
-
-### `Order` & `OrderItem`
-- `order_number`: Unique alphanumeric reference (`FC-2026-XXXXXX`)
-- `customer_name`, `customer_phone`, `customer_email`, `delivery_address`
-- `delivery_slot`: Selected delivery window (`Express 2 Hours`, `Morning 6-9 AM`, `Evening 5-8 PM`)
-- `subtotal`: DecimalField
-- `delivery_fee`: DecimalField (`₹0.00` if subtotal ≥ ₹299, else `₹40.00`)
-- `total_amount`: DecimalField (`subtotal + delivery_fee`)
-- `payment_method`: CharField (`UPI`, `CARD`, `COD`)
-- `status`: CharField (`CONFIRMED`, `PACKING`, `OUT_FOR_DELIVERY`, `DELIVERED`)
-- `items`: Relational `OrderItem`s created transactionally with stock deduction.
+1. **1st-Time Visitors**:
+   - Greeted on the landing page with the **Private Farm Gate** section inviting them to sign up.
+   - Welcomed with the sign-up modal (`openAuthModal('register')`) to create their free account.
+2. **Instant 1-Click Google Sign-In**:
+   - Powered by Firebase `signInWithPopup(auth, provider)` configured with:
+     ```typescript
+     provider.setCustomParameters({ prompt: 'select_account' });
+     ```
+   - Instantly opens the native Google account selection sheet.
+3. **Unlocked Catalog**:
+   - Upon signing up or signing in, the storefront immediately renders all 93 items.
+4. **Permanent Basket Access**:
+   - The **MY BASKET** button in the header and hero banner remains active throughout the experience.
 
 ---
 
-## 🌐 REST API Endpoints & Testing
+## 📊 Database Schema & Seed Data (93 Items)
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/categories/` | List all produce categories with item counts |
-| `GET` | `/api/products/` | List all produce (supports `?category=greens`, `?search=spinach`, `?ordering=price`) |
-| `GET` | `/api/products/<id>/` | Retrieve specific product details |
-| `POST` | `/api/orders/` | Place order (validates stock, calculates totals, creates items) |
-| `GET` | `/api/orders/track/<order_number>/` | Track order by reference code (`FC-2026-XXXXX`) |
+- **`Category`**:
+  - `name`: Category Title
+  - `slug`: `fruits`, `greens`, `veggies`
+  - `icon`: `🍎`, `🥬`, `🥕`
+- **`Product`**:
+  - `category`: Category ForeignKey
+  - `name`: Produce title (e.g., *Apples, Ratnagiri Alphonso Mangoes, Ooty Baby Spinach, Desi Tomatoes*)
+  - `price` & `original_price`: Decimal in ₹ INR
+  - `unit`: Quantity specification (e.g., `1 kg`, `250g bunch`, `6 pcs box`)
+  - `image_url`: Root path pointing to local public assets (e.g. `/fruits/apples.jpg`)
+  - `stock_quantity`, `is_organic`, `freshness_tag`, `rating`
 
-### Example Order Placement Payload:
-```json
-POST /api/orders/
-Content-Type: application/json
+---
 
-{
-  "customer_name": "Priya Sharma",
-  "customer_phone": "9876543210",
-  "customer_email": "priya.sharma@example.in",
-  "delivery_address": "Flat 402, Green Glen Orchid, 14th Main Road, Bandra West, Mumbai 400050",
-  "delivery_slot": "Express Delivery: Within 2 Hours",
-  "payment_method": "UPI",
-  "notes": "Leave with building security if not available",
-  "order_items": [
-    { "product_id": 1, "quantity": 1 },
-    { "product_id": 5, "quantity": 2 }
-  ]
-}
-```
+## 🌐 REST API Endpoints
+
+| Method | Endpoint | Description | Auth |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/categories/` | List categories with product counts | Public |
+| `GET` | `/api/products/` | List all 93 produce items (supports `?category=veggies`, `?search=tomato`) | Public / Members |
+| `GET` | `/api/products/<id>/` | Retrieve specific product details | Public |
+| `POST` | `/api/products/` | Create new produce item | Admin |
+| `PATCH`| `/api/products/<id>/` | Update produce item | Admin |
+| `DELETE`| `/api/products/<id>/` | Remove produce item | Admin |
+| `POST` | `/api/orders/` | Place order with atomic stock deduction | Public / Members |
+| `GET` | `/api/orders/track/<order_number>/` | Track order by reference code | Public |
 
 ---
 
 ## 💡 Angular Signals & Cart Architecture
 
-The application manages state via Angular Signals in `CartService`:
+The state is managed reactively via Angular Signals in `CartService`:
 
 - **Signals**:
-  - `cartItems = signal<CartItem[]>([])`
-  - `isCartOpen = signal<boolean>(false)`
-  - `isCheckoutOpen = signal<boolean>(false)`
-  - `selectedLocation = signal<string>('Bandra West, Mumbai')`
-  - `activeCategory = signal<string>('all')`
-  - `searchQuery = signal<string>('')`
-
+  - `cartItems`: Reactive list of items in the customer basket.
+  - `isCartOpen`: Controls the slide-over cart drawer.
+  - `activeCategory`: Active tab filter (`all`, `fruits`, `greens`, `veggies`).
+  - `searchQuery`: Live text search query.
 - **Computed Signals**:
-  - `subtotal`: Sum of all items (`item.price * item.quantity`).
-  - `deliveryFee`: Free (`₹0`) if `subtotal >= 299`, else `₹40`.
-  - `grandTotal`: `subtotal + deliveryFee`.
-  - `deliveryProgress`: Reactive calculation of percentage toward free delivery and remaining amount in ₹ INR.
+  - `totalItemCount`: Sum of item quantities.
+  - `subtotal`: Total cost of items in ₹ INR.
+  - `deliveryFee`: Free (`₹0.00`) when `subtotal >= ₹299`, else `₹40.00`.
+  - `grandTotal`: Total amount (`subtotal + deliveryFee`).
+  - `deliveryProgress`: Reactive progress percentage and amount remaining toward free delivery.
 
 ---
 

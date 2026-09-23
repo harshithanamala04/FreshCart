@@ -124,7 +124,7 @@ export class HeroBannerComponent implements OnInit, OnDestroy {
 
   scrollToProduce(): void {
     if (!this.authService.isLoggedIn()) {
-      this.authService.openAuthModal();
+      this.authService.openAuthModal('register');
       return;
     }
 

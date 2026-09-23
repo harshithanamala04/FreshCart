@@ -19,7 +19,7 @@
         [class.active]="cartService.activeCategory() === cat.slug"
         (click)="selectCategory(cat.slug)"
       >
-        <span class="cat-icon">{{ cat.icon }}</span>
+        <span class="cat-icon">{{ getCategoryIcon(cat) }}</span>
         <span class="cat-name">{{ cat.name }}</span>
         @if (cat.products_count) {
           <span class="cat-count">{{ cat.products_count }}</span>

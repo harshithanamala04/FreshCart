@@ -3,13 +3,13 @@
   <!-- Image & Badges Container -->
   <div class="product-media aspect-square">
     <img 
-      [src]="product.image_url" 
-      [alt]="product.name + ' - FreshCart Organic'" 
+      [src]="product.image_url || '/logo.jpg'" 
+      (error)="onImageError($event)"
+      alt="{{ product.name }}" 
       loading="lazy" 
       width="320"
       height="320"
       class="product-img"
-      (error)="handleImageError($event)"
     />
 
     <!-- Badges Overlay -->

@@ -187,11 +187,11 @@
           </button>
         </div>
 
-        <!-- Continue with Google Button -->
+        <!-- Continue with Google Button (1-Click Account Selection) -->
         <button 
           type="button" 
           class="btn-google" 
-          (click)="openGoogleFlow()" 
+          (click)="signInWithGooglePopup()" 
           [disabled]="isSubmitting() || isGoogleSubmitting()"
           aria-label="Continue with Google"
         >
@@ -208,6 +208,12 @@
             <span>Continue with Google</span>
           }
         </button>
+
+        <div style="text-align: center; margin-top: -6px; margin-bottom: 6px;">
+          <button type="button" (click)="openGoogleFlow()" style="background: none; border: none; font-size: 0.76rem; color: #5C665F; text-decoration: underline; cursor: pointer; padding: 4px;">
+            Choose from saved Google profiles or enter email
+          </button>
+        </div>
 
         <!-- Divider -->
         <div class="auth-divider">

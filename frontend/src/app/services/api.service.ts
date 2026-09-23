@@ -11,7 +11,16 @@ import { environment } from '../../environments/environment';
 })
 export class ApiService {
   private http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl || 'http://localhost:8000/api';
+  
+  get baseUrl(): string {
+    if (typeof window !== 'undefined' && window.location?.hostname) {
+      const host = window.location.hostname;
+      if (host && host !== 'localhost' && host !== '127.0.0.1') {
+        return `http://${host}:8000/api`;
+      }
+    }
+    return environment.apiUrl || 'http://localhost:8000/api';
+  }
 
   /**
    * Fallback dataset with authentic Indian organic farm produce
@@ -22,6 +31,10 @@ export class ApiService {
     { id: 2, name: 'Leafy Greens', slug: 'greens', icon: '🥬', display_order: 2, products_count: 12 },
     { id: 3, name: 'Daily Veggies', slug: 'veggies', icon: '🥕', display_order: 3, products_count: 35 },
   ];
+
+  getInitialCategories(): Category[] {
+    return [...this.fallbackCategories];
+  }
 
   private readonly fallbackProducts: Product[] = [
     // === All 46 Fruits with simple naming ===
@@ -1906,9 +1919,19 @@ export class ApiService {
   getCategories(): Observable<Category[]> {
     return this.http.get<any>(`${this.baseUrl}/categories/`).pipe(
       map(res => {
-        if (Array.isArray(res)) return res;
-        if (res && Array.isArray(res.results)) return res.results;
-        return this.fallbackCategories;
+        let list: any[] = [];
+        if (Array.isArray(res)) list = res;
+        else if (res && Array.isArray(res.results)) list = res.results;
+        else return this.fallbackCategories;
+
+        if (list.length === 0) return this.fallbackCategories;
+
+        // Ensure category icons and counts are properly populated
+        return list.map(cat => ({
+          ...cat,
+          icon: cat.icon && !cat.icon.includes('?') ? cat.icon : (cat.slug === 'fruits' ? '🍎' : cat.slug === 'greens' ? '🥬' : '🥕'),
+          products_count: cat.products_count || (cat.slug === 'fruits' ? 46 : cat.slug === 'greens' ? 12 : 35)
+        }));
       }),
       catchError(() => of(this.fallbackCategories))
     );
@@ -1916,15 +1939,9 @@ export class ApiService {
 
   /**
    * Fetch products from Django API with optional category and search query.
-   * Core Rule: Unauthenticated visitors cannot access or load products.
+   * Publicly accessible to all visitors and authenticated customers.
    */
   getProducts(categorySlug?: string, search?: string): Observable<Product[]> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('freshcart_token') : null;
-    if (!token) {
-      // Unauthenticated visitor cannot view products!
-      return of([]);
-    }
-
     let params = new HttpParams();
     if (categorySlug && categorySlug !== 'all') {
       params = params.set('category', categorySlug);
@@ -1949,11 +1966,8 @@ export class ApiService {
         const merged = [...custom, ...items.filter(it => !custom.some(c => c.id === it.id))];
         return this.normalizeProducts(merged);
       }),
-      catchError(err => {
-        if (err?.status === 401) {
-          return of([]);
-        }
-        // Filter fallback data client-side if API server is temporarily offline but user is logged in
+      catchError(() => {
+        // Fallback data client-side if API server is temporarily offline or experiencing latency
         const custom = this.getCustomProducts();
         let filtered = [...custom, ...this.fallbackProducts.filter(it => !custom.some(c => c.id === it.id))];
         if (categorySlug && categorySlug !== 'all') {
